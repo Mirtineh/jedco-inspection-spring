@@ -7,15 +7,19 @@ import com.jedco.jedcoinspectionspring.rest.responses.QuotationResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
 import com.jedco.jedcoinspectionspring.rest.responses.SalesAssessmentResponse;
 
-import java.security.Principal;
 import java.util.List;
 
 public interface InspectionSalesService {
-    public List<InspectionSalesResponse> salesInspectionsListByDate(String startDate, String endDate);
-    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, String username);
-    public ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, String username);
-    public List<SalesAssessmentResponse> getSalesAssessment(Long inspectionId);
-    public List<QuotationResponse> getQuotation(Long inspectionId);
-    public ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username);
+    List<InspectionSalesResponse> salesInspectionsListByDate(String startDate, String endDate);
+
+    ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, String username);
+
+    ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, String username);
+
+    List<SalesAssessmentResponse> getSalesAssessment(Long inspectionId);
+
+    List<QuotationResponse> getQuotation(Long inspectionId);
+
+    ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username);
 
 }
