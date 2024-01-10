@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -34,6 +33,6 @@ public class LegalController {
     public ResponseDTO updateInspectionStatus(@RequestBody UpdateInspectionStatusRequest dto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.legalService.updateInspectionStatus(dto.inspectionId(),dto.statusId(), dto.note(), userDetails.getUsername());
+        return this.legalService.updateInspectionStatus(dto.inspectionId(), dto.statusId(), dto.note(), userDetails.getUsername());
     }
 }

@@ -21,7 +21,7 @@ public class CustomerController {
 
     @GetMapping("/confirmCustomer")
     @PreAuthorize("hasAnyAuthority('REGISTER_INSPECTION')")
-    public CustomerResponseDto confirmCustomer(@RequestParam("meterNumber")String meterNumber){
+    public CustomerResponseDto confirmCustomer(@RequestParam("meterNumber") String meterNumber) {
         return this.customerService.getCustomer(meterNumber);
     }
 
