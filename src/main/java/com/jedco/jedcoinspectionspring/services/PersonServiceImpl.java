@@ -1,6 +1,7 @@
 package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.rest.requests.PersonInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.PersonUpdateRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.PersonResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,11 @@ public class PersonServiceImpl implements PersonService {
 
     @Override
     public ResponseDTO registerPerson(PersonInsertRequest insertDto, String username) {
+        return null;
+    }
+
+    @Override
+    public ResponseDTO updateTeam(PersonUpdateRequest updateDto, String username) {
         return null;
     }
 
