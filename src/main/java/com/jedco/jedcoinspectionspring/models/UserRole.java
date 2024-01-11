@@ -29,10 +29,10 @@ public class UserRole extends BaseEntity {
     @Column(name="registered_on", length=23)
     private Date registeredOn;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="userRole")
-    private Set<RoleDefinition> roleDefinitions = new HashSet<RoleDefinition>(0);
+    @OneToMany(fetch=FetchType.EAGER, mappedBy="userRole")
+    private Set<RoleDefinition> roleDefinitions = new HashSet<>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="userRole")
-    private Set<User> users = new HashSet<User>(0);
+//    @OneToMany(fetch=FetchType.LAZY, mappedBy="userRole")
+//    private Set<User> users = new HashSet<User>(0);
 
 }
