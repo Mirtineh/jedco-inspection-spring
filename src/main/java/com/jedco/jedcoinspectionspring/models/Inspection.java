@@ -102,4 +102,10 @@ public class Inspection extends BaseEntity{
     @OneToMany(fetch=FetchType.LAZY, mappedBy="inspection")
     private Set<TaskHistory> taskHistories = new HashSet<TaskHistory>(0);
 
+    @OneToMany(fetch=FetchType.LAZY, mappedBy = "inspection")
+    private Set<InspectionFile> inspectionFiles = new HashSet<>(0);
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy = "inspection")
+    private Set<InspectionAssessment> assessments = new HashSet<>(0);
+
 }
