@@ -90,16 +90,22 @@ public class Inspection extends BaseEntity{
     @Column(name="customer_status", length=250)
     private String customerStatus;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspections")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspection")
     private Set<CheckListResult> installationChecklists = new HashSet<CheckListResult>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspections")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspection")
     private Set<SalesAssignment> salesAssignments = new HashSet<SalesAssignment>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspections")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspection")
     private Set<CodeResult> codeResults = new HashSet<CodeResult>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspections")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="inspection")
     private Set<TaskHistory> taskHistories = new HashSet<TaskHistory>(0);
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy = "inspection")
+    private Set<InspectionFile> inspectionFiles = new HashSet<>(0);
+
+    @OneToMany(fetch=FetchType.LAZY, mappedBy = "inspection")
+    private Set<InspectionAssessment> assessments = new HashSet<>(0);
 
 }

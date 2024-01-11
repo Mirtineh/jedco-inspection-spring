@@ -22,7 +22,7 @@ public class InspectionFile extends BaseEntity{
 
     @ManyToOne(fetch= FetchType.LAZY)
     @JoinColumn(name="inspection_id", nullable=false)
-    private Inspection inspections;
+    private Inspection inspection;
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="file_status", nullable=false)

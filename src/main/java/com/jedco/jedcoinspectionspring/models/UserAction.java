@@ -21,7 +21,7 @@ public class UserAction extends BaseEntity{
     @Column(name="action", length=100)
     private String action;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="userAction")
+    @OneToMany(fetch=FetchType.EAGER, mappedBy="userAction")
     private Set<RoleDefinition> roleDefinitions = new HashSet<RoleDefinition>(0);
 
 }
