@@ -20,7 +20,7 @@ public class User extends BaseEntity{
     @JoinColumn(name="user_status", nullable=false)
     private Status status;
 
-    @ManyToOne(fetch=FetchType.LAZY)
+    @ManyToOne(fetch=FetchType.EAGER)
     @JoinColumn(name="user_role", nullable=false)
     private UserRole userRole;
 
@@ -58,22 +58,22 @@ public class User extends BaseEntity{
     @Column(name="activation_no", length=100)
     private String activationNo;
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="users")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="user")
     private Set<Inspection> inspections = new HashSet<Inspection>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="users")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="user")
     private Set<InspectionTeam> inspectionTeams = new HashSet<InspectionTeam>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="users")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="user")
     private Set<CheckListResult> installationChecklists = new HashSet<CheckListResult>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="users")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="user")
     private Set<CodeResult> codeResults = new HashSet<CodeResult>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="users")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="user")
     private Set<SalesAssignment> salesAssignments = new HashSet<SalesAssignment>(0);
 
-    @OneToMany(fetch=FetchType.LAZY, mappedBy="users")
+    @OneToMany(fetch=FetchType.LAZY, mappedBy="user")
     private Set<TeamMember> teamMembers = new HashSet<TeamMember>(0);
 
     @OneToMany(fetch=FetchType.LAZY, mappedBy= "registeredBy")
