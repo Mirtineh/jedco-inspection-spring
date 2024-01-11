@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 @Table(name = "checklist_result")
 public class CheckListResult extends BaseEntity{
-    @Column(name="checklist_status", nullable=false)
+    @Column(name="checklist_status", nullable=false,columnDefinition = "TINYINT(1)")
     private boolean checklistStatus;
 
     @Column(name="remark", length=250)
@@ -37,6 +37,6 @@ public class CheckListResult extends BaseEntity{
 
     @ManyToOne(fetch=FetchType.LAZY)
     @JoinColumn(name="registered_by", nullable=false)
-    private User users;
+    private User user;
 
 }
