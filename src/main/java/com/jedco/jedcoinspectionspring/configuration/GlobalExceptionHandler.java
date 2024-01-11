@@ -13,7 +13,7 @@ import java.util.HashSet;
 public class GlobalExceptionHandler {
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<JwtAuthenticationResponse> handleAuthenticationFailureException(AuthenticationException ex) {
-        JwtAuthenticationResponse response = new JwtAuthenticationResponse("", new HashSet<>(), false, ex.getMessage());
+        JwtAuthenticationResponse response = new JwtAuthenticationResponse("","", new HashSet<>(), false, ex.getMessage());
         return ResponseEntity.ok(response);
     }
 }

@@ -40,7 +40,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = usersRepository.findByUsername(request.username())
                 .orElseThrow(() -> new AuthenticationException("Bad credentials!"));
         var jwt = jwtService.generateToken(user);
-        return new JwtAuthenticationResponse(jwt, toAuthoritySet(user), true, "Authentication Successful!");
+        return new JwtAuthenticationResponse(jwt, user.getFirstName(), toAuthoritySet(user), true, "Authentication Successful!");
     }
 
     @Override
