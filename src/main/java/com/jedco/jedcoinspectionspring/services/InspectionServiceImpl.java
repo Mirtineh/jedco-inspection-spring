@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -33,6 +34,7 @@ public class InspectionServiceImpl implements InspectionService {
     private final CheckListResultRepository checkListResultRepository;
     private final CheckListRepository checkListRepository;
     private final CodeResultRepository codeResultRepository;
+    private final SalesAssignmentRepository salesAssignmentRepository;
     private final AsyncService asyncService;
 
     private final PriorityMapper priorityMapper;
@@ -165,7 +167,10 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Override
     public List<InspectionResponse> getInspectionsByDateAndStatus(String startDate, String endDate, Long statusId) {
-        return null;
+        Day day = dateConverter.convertBetweenDays(startDate, endDate);
+        if (day == null) return null;
+        List<Inspection> inspections= inspectionRepository.findAllByStatusIdAndRegisteredOnBetween(statusId,day.startTime(),day.endTime());
+        return inspections.stream().map(inspectionMapper::toInspectionResponse).toList();
     }
 
     @Override
@@ -176,6 +181,52 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Override
     public ResponseDTO sendToSales(Long inspectionId, Long priorityId, String note, String username) {
-        return null;
+        try {
+
+            Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
+            Status sentToSalesStatus = statusRepository.findById(20L).get();
+            Optional<User> optionalUser = userRepository.findByUsername(username);
+            Optional<Priority> optionalPriority = priorityRepository.findById(priorityId);
+
+            Date date = new Date();
+            if(optionalInspection.isEmpty()){
+                return new ResponseDTO(false, "Inspection Not Found!");
+            }
+            if(optionalUser.isEmpty()){
+                return new ResponseDTO(false, "User Not Found!");
+            }if(optionalPriority.isEmpty()){
+                return new ResponseDTO(false, "Priority Not Found!");
+            }
+            Inspection inspection= optionalInspection.get();
+            var priority= optionalPriority.get();
+            var user= optionalUser.get();
+            SalesAssignment assignment = new SalesAssignment();
+            assignment.setInspection(inspection);
+            assignment.setPriority(priority);
+            assignment.setStatus(sentToSalesStatus);
+            assignment.setSalesSentDate(date);
+            assignment.setUser(user);
+            assignment.setNote(note);
+
+            salesAssignmentRepository.save(assignment);
+
+            inspection.setStatus(sentToSalesStatus);
+            inspection.setUpdatedOn(date);
+
+            TaskHistory taskHistory = new TaskHistory();
+            taskHistory.setAdditionalNote(note);
+            taskHistory.setActionDate(date);
+            taskHistory.setInspection(inspection);
+            taskHistory.setActionBy(user);
+            taskHistory.setActionType("INSPECTION SENT TO SALES");
+            taskHistory.setHistoryDetails(user.getFirstName() + " " + user.getLastName() + " Sent the Inspection to Sales");
+            this.asyncService.postHistory(taskHistory);
+
+            return new ResponseDTO(true, "Inspection Sent to Sales Successfully");
+        }catch (Exception ex){
+            System.out.println("Send Inspection to Sales Failed. "+ex.getMessage());
+            return new ResponseDTO(false, "Send Inspection to Sales Failed.");
+
+        }
     }
 }
