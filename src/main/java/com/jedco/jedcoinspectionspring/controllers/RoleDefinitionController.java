@@ -41,7 +41,7 @@ public class RoleDefinitionController {
 
     @GetMapping("/definedRolesList")
     @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
-    public List<RoleDefinitionResponse> definedRolesList(@RequestParam("userRoleId") Long userRoleId, @RequestParam(value = "startPosition", required = false) int startPosition, @RequestParam(value = "maxPosition", required = false) int maxPosition) {
+    public List<RoleDefinitionResponse> definedRolesList(@RequestParam("userRoleId") Long userRoleId, @RequestParam(value = "startPosition", required = false) Integer startPosition, @RequestParam(value = "maxPosition", required = false) Integer maxPosition) {
         return this.roleDefinitionService.definedRolesList(userRoleId);
     }
 }
