@@ -12,4 +12,6 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
     List<Inspection> findAllByStatusIdAndRegisteredOnBetween(Long statusId, Date date, Date date1);
 
     List<Inspection> findAllByStatusIdGreaterThanAndRegisteredOnBetween(Long legalStatusId, Date date, Date date1);
+
+    List<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetween(Long salesStatusId, Date date, Date date1);
 }
