@@ -11,7 +11,7 @@ public interface UserManagementService {
 
     ResponseDTO updateUserProfile(UpdateUserProfileRequest updateUserProfile);
 
-    List<UserResponse> usersList(String username);
+    List<UserResponse> usersList();
 
     ResponseDTO deleteUser(Long id);
 
@@ -19,7 +19,7 @@ public interface UserManagementService {
 
     ResponseDTO reactivateUser(Long id);
 
-    List<UserResponse> usersListByRole(Long roleId, String username);
+    List<UserResponse> usersListByRole(Long roleId);
 
     ResponseDTO actNoCheck(String number);
 
