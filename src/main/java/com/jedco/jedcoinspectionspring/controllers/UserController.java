@@ -46,27 +46,20 @@ public class UserController {
     @GetMapping("/userList")
     @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     public List<UserResponse> userList() {
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.userManagementService.usersList(userDetails.getUsername());
+        return this.userManagementService.usersList();
     }
 
     @GetMapping("/clientList")
     @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     public List<UserResponse> clientList() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.userManagementService.usersList(userDetails.getUsername());
+        return this.userManagementService.usersList();
     }
 
     @GetMapping("/userListByRole")
     @PreAuthorize("hasAnyAuthority('VIEW_USER')")
     public List<UserResponse> userListByRole(@RequestParam("roleId") Long roleId) {
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.userManagementService.usersListByRole(roleId, userDetails.getUsername());
+        return this.userManagementService.usersListByRole(roleId);
     }
 
     @GetMapping("/activationNumCheck")
