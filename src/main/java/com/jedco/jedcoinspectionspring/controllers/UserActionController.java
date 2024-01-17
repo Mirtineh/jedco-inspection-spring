@@ -23,7 +23,7 @@ public class UserActionController {
 
     @GetMapping("/userActionList")
     @PreAuthorize("hasAnyAuthority('VIEW_ROLE')")
-    public List<UserActionsListByGroupResponse> userActionList(@RequestParam(value = "startPosition", required = false) int startPosition, @RequestParam(value = "maxPosition", required = false) int maxPosition) {
+    public List<UserActionsListByGroupResponse> userActionList(@RequestParam(value = "startPosition", required = false) Integer startPosition, @RequestParam(value = "maxPosition", required = false) Integer maxPosition) {
         return this.userActionService.userActionList();
     }
 }
