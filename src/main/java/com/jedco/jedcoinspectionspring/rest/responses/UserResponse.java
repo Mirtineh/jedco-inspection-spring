@@ -1,5 +1,7 @@
 package com.jedco.jedcoinspectionspring.rest.responses;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public record UserResponse(
@@ -11,7 +13,9 @@ public record UserResponse(
         String email,
         String phone,
         String userName,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date createdOn,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date updatedOn,
         Long statusId,
         String statusName,

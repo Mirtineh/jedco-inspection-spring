@@ -1,5 +1,7 @@
 package com.jedco.jedcoinspectionspring.rest.responses;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public record TaskHistoryResponse(
@@ -13,6 +15,7 @@ public record TaskHistoryResponse(
         String teamId,
         String teamName,
         String teamLeader,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date actionDate
 ) {
 }
