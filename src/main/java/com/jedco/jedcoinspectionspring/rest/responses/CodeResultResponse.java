@@ -1,5 +1,7 @@
 package com.jedco.jedcoinspectionspring.rest.responses;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 
 public record CodeResultResponse(
@@ -8,7 +10,9 @@ public record CodeResultResponse(
         String inspectionCode,
         String description,
         String result,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date registeredOn,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date updatedOn
 ) {
 }

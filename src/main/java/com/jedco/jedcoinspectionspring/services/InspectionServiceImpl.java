@@ -9,6 +9,7 @@ import com.jedco.jedcoinspectionspring.models.*;
 import com.jedco.jedcoinspectionspring.repositories.*;
 import com.jedco.jedcoinspectionspring.rest.requests.CheckListResultInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.CodeResultInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionCodesResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionResponse;
@@ -16,8 +17,12 @@ import com.jedco.jedcoinspectionspring.rest.responses.PriorityResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,12 +40,15 @@ public class InspectionServiceImpl implements InspectionService {
     private final CheckListRepository checkListRepository;
     private final CodeResultRepository codeResultRepository;
     private final SalesAssignmentRepository salesAssignmentRepository;
+    private final InspectionFileRepository inspectionFileRepository;
     private final AsyncService asyncService;
 
     private final PriorityMapper priorityMapper;
     private final InspectionCodeMapper inspectionCodeMapper;
     private final InspectionMapper inspectionMapper;
     private final DateConverter dateConverter;
+    @Value("${file.upload-dir}")
+    private String uploadDir;
     @Override
     public ResponseDTO insertInspection(InspectionInsertRequest insertDto, String username) {
         try {
@@ -227,6 +235,93 @@ public class InspectionServiceImpl implements InspectionService {
             System.out.println("Send Inspection to Sales Failed. "+ex.getMessage());
             return new ResponseDTO(false, "Send Inspection to Sales Failed.");
 
+        }
+    }
+
+    @Override
+    public ResponseDTO upload(FileUploadFormRequest form, String username) {
+        try {
+            Optional<User> optionalUser = userRepository.findByUsername(username);
+            if (optionalUser.isEmpty()) {
+                return new ResponseDTO(false, "User Not Found");
+            }
+            Optional<Inspection> optionalInspection = inspectionRepository.findById(form.inspectionId());
+            if (optionalInspection.isEmpty()) {
+                return new ResponseDTO(false, "Inspection Data Not Found");
+            }
+            var user= optionalUser.get();
+            var inspection= optionalInspection.get();
+
+//            String folder = System.getProperty("jboss.home.dir") + File.separator + "welcome-content";
+            String folder = uploadDir;
+            String path = File.separator + "inspectionFiles" + File.separator + inspection.getMeterNo();
+            folder = folder + path;
+            if (form.fileName() == null || form.fileName().isEmpty()) {
+                return new ResponseDTO(false, "File Name Can not be empty!");
+            }
+            if (this.createFolderIfNotExists(folder)) {
+
+                String filePath = path + File.separator + form.fileName();
+                String fileName = folder + File.separator + form.fileName().replace("\\s", "_");
+
+                if (this.writeFile(form.data(), fileName)) {
+                    InspectionFile inspectionFile = new InspectionFile();
+                    inspectionFile.setFileName(filePath);
+                    inspectionFile.setFileUploadedOn(new Date());
+                    inspectionFile.setUser(user);
+                    inspectionFile.setInspection(inspection);
+                    inspectionFile.setStatus(statusRepository.findById(1L).get());
+
+                    inspectionFileRepository.save(inspectionFile);
+
+                    TaskHistory taskHistory = new TaskHistory();
+
+                    taskHistory.setActionDate(new Date());
+                    taskHistory.setInspection(inspection);
+                    taskHistory.setActionBy(user);
+                    taskHistory.setActionType("PICTURE UPLOADED");
+
+                    taskHistory.setHistoryDetails(user.getFirstName() + " " + user.getLastName() + " Uploaded Inspection Picture");
+
+
+                    this.asyncService.postHistory(taskHistory);
+
+                    return new ResponseDTO(true, "File Uploaded Successfully");
+                } else {
+                    return new ResponseDTO(false, "A file with the same name already exists!");
+                }
+            } else {
+                return new ResponseDTO(false, "Unable to create folder!");
+            }
+
+        } catch (Exception var5) {
+            log.error(var5.getMessage());
+            return new ResponseDTO(false, "File Upload Failed!");
+        }
+    }
+    private boolean createFolderIfNotExists(String dirName) throws SecurityException {
+        File theDir = new File(dirName);
+        log.info(dirName);
+        if (!theDir.exists()) {
+            log.info("the path not exists");
+            return theDir.mkdirs();
+        } else {
+            log.info("the path exists");
+            return true;
+        }
+
+    }
+    private boolean writeFile(MultipartFile content, String filename) throws IOException {
+        try {
+            File file = new File(filename);
+            if (file.exists()) {
+                return false;
+            }
+            content.transferTo(file);
+            return true;
+        } catch (IOException e) {
+            log.error(e.getMessage());
+            return false;
         }
     }
 }

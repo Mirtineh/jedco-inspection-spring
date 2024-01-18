@@ -1,5 +1,6 @@
 package com.jedco.jedcoinspectionspring.services;
 
+import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionCodesResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionResponse;
@@ -22,5 +23,7 @@ public interface InspectionService {
     List<InspectionCodesResponse> inspectionCodesList(String meterType);
 
     ResponseDTO sendToSales(Long inspectionId, Long priorityId, String note, String username);
+
+    ResponseDTO upload(FileUploadFormRequest form, String username);
 
 }

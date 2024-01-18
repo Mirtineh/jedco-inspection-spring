@@ -1,5 +1,7 @@
 package com.jedco.jedcoinspectionspring.rest.responses;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.util.Date;
 import java.util.List;
 
@@ -16,12 +18,14 @@ public record InspectionSalesResponse(
         String ciuNumber,
         String connType,
         String tarifCat,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date registeredDate,
         String feeder,
         String txNo,
         String registeredBy,
         String priorityLevel,
         String assignmentNote,
+        @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date sentToSalesOn,
         List<CheckListResultResponse> checkListResultList,
         List<CodeResultResponse> codeResultList,
