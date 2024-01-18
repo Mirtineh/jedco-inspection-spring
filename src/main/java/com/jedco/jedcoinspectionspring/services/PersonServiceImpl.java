@@ -57,7 +57,7 @@ public class PersonServiceImpl implements PersonService {
 
 
         } catch (Exception ex) {
-            System.out.println("Person Registration Error => " + ex.getMessage());
+            log.error("Person Registration Error => " + ex.getMessage());
             return new ResponseDTO(false, "Person Registration NOT Registered!");
         }
     }
@@ -83,14 +83,10 @@ public class PersonServiceImpl implements PersonService {
 
             personRepository.save(person);
 
-            //TODO activity Log
-            //TODO team History
-            //TODO person History
-
             return new ResponseDTO(true, "Person Updated Successfully!");
 
         } catch (Exception ex) {
-            System.out.println("Person Update Error => " + ex.getMessage());
+            log.error("Person Update Error => " + ex.getMessage());
             return new ResponseDTO(false, "Person NOT Updated!");
 
         }
@@ -114,13 +110,9 @@ public class PersonServiceImpl implements PersonService {
                 return new ResponseDTO(false, "Person NOT Found!");
             }
 
-            //TODO activity Log
-            //TODO team History
-            //TODO person History
-
 
         } catch (Exception ex) {
-            System.out.println("Person Delete Error => " + ex.getMessage());
+            log.error("Person Delete Error => " + ex.getMessage());
             return new ResponseDTO(false, "Person NOT Deleted!");
 
         }
@@ -143,13 +135,9 @@ public class PersonServiceImpl implements PersonService {
                 return new ResponseDTO(false, "Person NOT Found!");
             }
 
-            //TODO activity Log
-            //TODO team History
-            //TODO person History
-
 
         } catch (Exception ex) {
-            System.out.println("Person Suspend Error => " + ex.getMessage());
+            log.error("Person Suspend Error => " + ex.getMessage());
             return new ResponseDTO(false, "Person NOT Suspended!");
 
         }
@@ -171,12 +159,9 @@ public class PersonServiceImpl implements PersonService {
             } else {
                 return new ResponseDTO(false, "Person NOT Found!");
             }
-            //TODO activity Log
-            //TODO team History
-            //TODO person History
 
         } catch (Exception ex) {
-            System.out.println("Person Suspend Error => " + ex.getMessage());
+            log.error("Person Suspend Error => " + ex.getMessage());
             return new ResponseDTO(false, "Person NOT Reactivated!");
 
         }

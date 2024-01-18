@@ -40,8 +40,7 @@ public class UserRoleServiceImpl implements UserRoleService {
                 return new ResponseDTO(false, "Deactivated Role");
             }
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }

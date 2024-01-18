@@ -22,7 +22,7 @@ public class PasswordRelatedServiceImpl implements PasswordRelatedService {
     public ResponseDTO changePassword(String oldPassword, String confirmPassword, String newPassword, String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if (optionalUser.isEmpty()) {
-            //TODO implement Response Exception handler
+            //TODO check if the exception is handled correctly
             throw new ResponseException("User could not be identified! Login required!");
         }
         var user = optionalUser.get();

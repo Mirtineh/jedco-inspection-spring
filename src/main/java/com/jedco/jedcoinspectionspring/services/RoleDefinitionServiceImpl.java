@@ -52,8 +52,7 @@ public class RoleDefinitionServiceImpl implements RoleDefinitionService {
             return new ResponseDTO(true, "User role defined successfully");
 
         } catch (Exception e) {
-            //TODO to error log
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -69,13 +68,12 @@ public class RoleDefinitionServiceImpl implements RoleDefinitionService {
             List<RoleDefinition> roleDefinitions = roleDefinitionRepository.findAllByUserRoleId(userRole.getId());
             List<Long> userActionIds = addOrRemoveActionDto.userActions();
 
-            System.out.println("user ---------------------------- role  " + addOrRemoveActionDto.userRoleId());
+            log.info("user ---------------------------- role  " + addOrRemoveActionDto.userRoleId());
             userActionIds.forEach(id -> {
-                System.out.println("user ---------------------------- actions  " + id);
+                log.info("user ---------------------------- actions  " + id);
             });
 
             roleDefinitions.forEach((definition) -> {
-//                    System.out.println("--------------------------------------------------- " + definition.getUserAction().getAction());
                 if (!userActionIds.contains(definition.getId())) {
                     definition.setStatus(statusRepository.findById(3L).get());
                     roleDefinitionRepository.save(definition);
@@ -96,8 +94,7 @@ public class RoleDefinitionServiceImpl implements RoleDefinitionService {
 
 
         } catch (Exception e) {
-            //TODO error handling
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -128,8 +125,7 @@ public class RoleDefinitionServiceImpl implements RoleDefinitionService {
 
 
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -137,7 +133,6 @@ public class RoleDefinitionServiceImpl implements RoleDefinitionService {
     @Override
     public List<RoleDefinitionResponse> definedRolesList(Long userRoleId) {
         UserRole userRole= userRoleRepository.findById(userRoleId).get();
-        //TODO check this method
         return userRole.getRoleDefinitions().stream().map(roleDefinition -> roleDefinitionMapper.toResponse(roleDefinition,userRole)).toList();
     }
 }
