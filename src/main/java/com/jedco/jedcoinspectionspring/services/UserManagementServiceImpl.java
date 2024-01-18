@@ -64,8 +64,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             return new ResponseDTO(true, "User created successfully");
 
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -92,8 +91,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 return new ResponseDTO(false, "User Not Found!");
             }
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -119,8 +117,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 return new ResponseDTO(false, "User not Found!");
             }
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -138,8 +135,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 return new ResponseDTO(false, "You can not suspend unActive user");
             }
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -157,8 +153,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             } else
                 return new ResponseDTO(false, "Pending user / already activated user / deleted user");
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }
@@ -217,8 +212,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 return new ResponseDTO(false, "User Not Found!");
             }
         } catch (Exception e) {
-            //TODO handle error
-            e.printStackTrace();
+            log.error(e.getMessage());
             return new ResponseDTO(false, "Operation Failed!");
         }
     }

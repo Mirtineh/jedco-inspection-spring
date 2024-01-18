@@ -63,7 +63,7 @@ public class InspectionServiceImpl implements InspectionService {
             Status registeredStatus = statusRepository.findById(10L).get();
 
             if(insertDto.meterNumber().isEmpty()){
-                //TODO SET THE METERNUMBER TO EMPTY
+                //TODO Check if this statement is necessary
 //                insertDto.setMetterNumber("");
                 if(insertDto.remark()==null || insertDto.remark().isEmpty()){
                     taskHistory.setAdditionalNote("Inspection Registered without Meter Number");
@@ -141,8 +141,7 @@ public class InspectionServiceImpl implements InspectionService {
 
             return new ResponseDTO(true, "Inspection Registered Successfully!");
         } catch (Exception ex) {
-
-            System.out.println("ERROR registering Inspection -> " + ex.getMessage());
+            log.error("ERROR registering Inspection -> " + ex.getMessage());
             return new ResponseDTO(false, "Inspection NOT Registered");
 
         }
@@ -232,7 +231,7 @@ public class InspectionServiceImpl implements InspectionService {
 
             return new ResponseDTO(true, "Inspection Sent to Sales Successfully");
         }catch (Exception ex){
-            System.out.println("Send Inspection to Sales Failed. "+ex.getMessage());
+            log.error("Send Inspection to Sales Failed. "+ex.getMessage());
             return new ResponseDTO(false, "Send Inspection to Sales Failed.");
 
         }
