@@ -1,5 +1,6 @@
 package com.jedco.jedcoinspectionspring.controllers;
 
+import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionCodesResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionResponse;
@@ -14,6 +15,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -73,13 +75,13 @@ public class InspectionController {
         return this.inspectionService.getInspectionsByDateAndStatus(startDate, endDate, statusId);
     }
 
-    //TODO implement this
-//    @POST
-//    @Path("/uploadFile")
-//    @Consumes({"multipart/form-data"})
-//    @Produces("application/json")
-//    public ResponseDTO uploadFile(@MultipartForm FileUploadForm form) {
-//        Principal principal = this.securityContext.getUserPrincipal();
-//        return this.inspectionService.upload(form, principal);
-//    }
+    @PostMapping("/uploadFile")
+    public ResponseDTO uploadFile(@RequestPart("uploadedFile") MultipartFile file,
+                                  @RequestParam("fileName") String fileName,
+                                  @RequestParam("inspectionId") Long assignmentId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        FileUploadFormRequest form = new FileUploadFormRequest(file, assignmentId, fileName);
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return this.inspectionService.upload(form, userDetails.getUsername());
+    }
 }
