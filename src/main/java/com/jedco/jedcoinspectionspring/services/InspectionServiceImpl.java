@@ -62,7 +62,7 @@ public class InspectionServiceImpl implements InspectionService {
             User registeredBy = userRepository.findByUsername(username).get();
             Status registeredStatus = statusRepository.findById(10L).get();
 
-            if(insertDto.meterNumber().isEmpty()){
+            if(insertDto.metterNumber().isEmpty()){
                 //TODO Check if this statement is necessary
 //                insertDto.setMetterNumber("");
                 if(insertDto.remark()==null || insertDto.remark().isEmpty()){
@@ -79,10 +79,10 @@ public class InspectionServiceImpl implements InspectionService {
             inspection.setMeterType(insertDto.meterType());
             inspection.setCustomerName(insertDto.customerName());
             inspection.setPhoneNo(insertDto.phoneNumber());
-            inspection.setMeterNo(insertDto.meterNumber());
+            inspection.setMeterNo(insertDto.metterNumber());
             inspection.setCiuNo(insertDto.ciuNumber());
             inspection.setConnectionType(insertDto.connType());
-            inspection.setTariffCategory(insertDto.tariffCat());
+            inspection.setTariffCategory(insertDto.tarifCat());
             inspection.setLocation(insertDto.location());
             inspection.setFeeder(insertDto.feeder());
             inspection.setTxNo(insertDto.txNo());

@@ -39,7 +39,7 @@ public class InspectionController {
 
     @PostMapping("/insertInspection")
     @PreAuthorize("hasAnyAuthority('REGISTER_INSPECTION')")
-    public ResponseDTO register(InspectionInsertRequest insertDto) {
+    public ResponseDTO register(@RequestBody InspectionInsertRequest insertDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return this.inspectionService.insertInspection(insertDto, userDetails.getUsername());
@@ -76,11 +76,11 @@ public class InspectionController {
     }
 
     @PostMapping("/uploadFile")
-    public ResponseDTO uploadFile(@RequestPart("uploadedFile") MultipartFile file,
-                                  @RequestParam("fileName") String fileName,
-                                  @RequestParam("inspectionId") Long assignmentId) {
+    public ResponseDTO uploadFile(  @RequestPart("uploadedFile") MultipartFile file,
+                                    @RequestParam("assignmentId") Long inspectionId,
+                                    @RequestParam("fileName") String fileName) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        FileUploadFormRequest form = new FileUploadFormRequest(file, assignmentId, fileName);
+        FileUploadFormRequest form = new FileUploadFormRequest(file, inspectionId, fileName);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return this.inspectionService.upload(form, userDetails.getUsername());
     }
