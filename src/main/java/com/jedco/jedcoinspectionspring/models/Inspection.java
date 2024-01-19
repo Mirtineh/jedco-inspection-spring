@@ -59,19 +59,19 @@ public class Inspection extends BaseEntity{
     @Column(name="longitude", nullable=false, precision=10)
     private Double longitude;
 
-    @Column(name="location_accuracy", nullable=false, precision=10)
+    @Column(name="location_accuracy", precision=10)
     private Double locationAccuracy;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="registered_on", nullable=false, length=23)
+    @Column(name="registered_on", length=23)
     private Date registeredOn;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="completed_on", nullable=false, length=23)
+    @Column(name="completed_on", length=23)
     private Date completedOn;
 
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="approved_on", nullable=false, length=23)
+    @Column(name="approved_on", length=23)
     private Date approvedOn;
 
     @Temporal(TemporalType.TIMESTAMP)
