@@ -2,10 +2,7 @@ package com.jedco.jedcoinspectionspring.controllers;
 
 import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionCodesResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.PriorityResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
+import com.jedco.jedcoinspectionspring.rest.responses.*;
 import com.jedco.jedcoinspectionspring.services.InspectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -55,10 +52,15 @@ public class InspectionController {
 
     @GetMapping("/getAdminInspectionSByDate")
     @PreAuthorize("hasAnyAuthority('VIEW_INSPECTION', 'REGISTER_INSPECTION', 'UPDATE_INSPECTION')")
-    public List<InspectionResponse> getAdminInspectionSByDate(@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.inspectionService.adminInspectionsListByDate(startDate, endDate, userDetails.getUsername());
+    public AdminInspectionResponse getAdminInspectionSByDate(@RequestParam(value = "startDate", required = false) String startDate,
+                                                             @RequestParam(value = "endDate", required = false) String endDate,
+                                                             @RequestParam(value = "page",defaultValue = "1") Integer page,
+                                                             @RequestParam(value = "limit", defaultValue = "20") Integer limit,
+                                                             @RequestParam(value = "customerName", required = false) String customerName,
+                                                             @RequestParam(value = "metterNumber", required = false) String meterNumber,
+                                                             @RequestParam(value = "sort", required = false) String sort
+                                                             ) {
+        return this.inspectionService.adminInspectionsListByDate(startDate, endDate,customerName,meterNumber, page,limit,sort);
     }
 
     @GetMapping("/sendInspectionsToSales")
