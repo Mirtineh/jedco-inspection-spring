@@ -2,10 +2,7 @@ package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionCodesResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.PriorityResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
+import com.jedco.jedcoinspectionspring.rest.responses.*;
 
 import java.util.List;
 
@@ -16,7 +13,7 @@ public interface InspectionService {
 
     List<InspectionResponse> inspectionsListByDate(String startDate, String endDate, String username);
 
-    List<InspectionResponse> adminInspectionsListByDate(String startDate, String endDate, String username);
+    AdminInspectionResponse adminInspectionsListByDate(String startDate, String endDate,String customerName,String meterNumber, int page, int limit,String sort);
 
     List<InspectionResponse> getInspectionsByDateAndStatus(String startDate, String endDate, Long statusId);
 
