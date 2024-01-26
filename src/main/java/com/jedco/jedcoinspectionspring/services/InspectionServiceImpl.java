@@ -11,13 +11,14 @@ import com.jedco.jedcoinspectionspring.rest.requests.CheckListResultInsertReques
 import com.jedco.jedcoinspectionspring.rest.requests.CodeResultInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionCodesResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.PriorityResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
+import com.jedco.jedcoinspectionspring.rest.responses.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +26,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -164,13 +166,67 @@ public class InspectionServiceImpl implements InspectionService {
     }
 
     @Override
-    public List<InspectionResponse> adminInspectionsListByDate(String startDate, String endDate, String username) {
-        Day day = dateConverter.convertBetweenDays(startDate, endDate);
-        if (day == null) return null;
+    public AdminInspectionResponse adminInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber, int page, int limit,String sort) {
+        Day day = dateConverter.convertBetweenDays(startDateString, endDateString);
         Long deletedStatus=3L;
-        List<Inspection> inspections= inspectionRepository.findAllByStatusId_NotAndRegisteredOnBetween(deletedStatus,day.startTime(),day.endTime());
-        return inspections.stream().map(inspectionMapper::toInspectionResponse).toList();
+        Pageable pageable = createPageable(page, limit, sort);
+        Page<Inspection> inspectionPage;
+        if(day!=null){
+            if (customerName != null && meterNumber != null) {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
+                        deletedStatus, day.startTime(), day.endTime(), customerName, meterNumber, pageable);
+            } else if (customerName != null) {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCase(
+                        deletedStatus, day.startTime(), day.endTime(), customerName, pageable);
+            } else if (meterNumber != null) {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCase(
+                        deletedStatus, day.startTime(), day.endTime(), meterNumber, pageable);
+            } else {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetween(deletedStatus, day.startTime(), day.endTime(), pageable);
+            }
+        }
+        else {
+            if (customerName != null && meterNumber != null) {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
+                        deletedStatus, customerName, meterNumber, pageable);
+            } else if (customerName != null) {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCase(
+                        deletedStatus, customerName, pageable);
+            } else if (meterNumber != null) {
+                inspectionPage = inspectionRepository.findAllByStatusIdNotAndMeterNoContainingIgnoreCase(
+                        deletedStatus, meterNumber, pageable);
+            } else {
+                inspectionPage = inspectionRepository.findAllByStatusIdNot(deletedStatus, pageable);
+            }
+        }
+        List<InspectionResponse> inspectionResponses = inspectionPage.getContent().stream()
+                .map(inspectionMapper::toInspectionResponse)
+                .toList();
+        Long totalRows = inspectionPage.getTotalElements();
+        return new AdminInspectionResponse(inspectionResponses, totalRows);
     }
+    public Pageable createPageable(int page, int limit, String sort) {
+        if (sort != null && !sort.isEmpty()) {
+            String[] sortParts = sort.split("%");
+            String sortBy = sortParts[0];
+            Sort.Direction sortDirection = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+            // Create a mapping between request parameter names and entity fields
+            Map<String, String> fieldMappings = Map.of(
+                    "registeredDate", "registeredOn",
+                    "metterNumber", "meterNo"
+                    // Add more mappings as needed
+            );
+
+            // Use the mapping to get the actual field name
+            String mappedField = fieldMappings.getOrDefault(sortBy, sortBy);
+
+            return PageRequest.of(page - 1, limit, Sort.by(sortDirection, mappedField));
+        } else {
+            return PageRequest.of(page - 1, limit);
+        }
+    }
+
 
     @Override
     public List<InspectionResponse> getInspectionsByDateAndStatus(String startDate, String endDate, Long statusId) {
