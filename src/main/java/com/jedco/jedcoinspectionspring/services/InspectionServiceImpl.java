@@ -44,6 +44,7 @@ public class InspectionServiceImpl implements InspectionService {
     private final SalesAssignmentRepository salesAssignmentRepository;
     private final InspectionFileRepository inspectionFileRepository;
     private final AsyncService asyncService;
+    private final ExcelGenerator excelGenerator;
 
     private final PriorityMapper priorityMapper;
     private final InspectionCodeMapper inspectionCodeMapper;
@@ -166,46 +167,95 @@ public class InspectionServiceImpl implements InspectionService {
     }
 
     @Override
-    public AdminInspectionResponse adminInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber, int page, int limit,String sort) {
-        Day day = dateConverter.convertBetweenDays(startDateString, endDateString);
-        Long deletedStatus=3L;
+    public AdminInspectionResponse adminInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber,List<Long> statuses, int page, int limit,String sort) {
         Pageable pageable = createPageable(page, limit, sort);
-        Page<Inspection> inspectionPage;
-        if(day!=null){
-            if (customerName != null && meterNumber != null) {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
-                        deletedStatus, day.startTime(), day.endTime(), customerName, meterNumber, pageable);
-            } else if (customerName != null) {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCase(
-                        deletedStatus, day.startTime(), day.endTime(), customerName, pageable);
-            } else if (meterNumber != null) {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCase(
-                        deletedStatus, day.startTime(), day.endTime(), meterNumber, pageable);
-            } else {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetween(deletedStatus, day.startTime(), day.endTime(), pageable);
-            }
-        }
-        else {
-            if (customerName != null && meterNumber != null) {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
-                        deletedStatus, customerName, meterNumber, pageable);
-            } else if (customerName != null) {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCase(
-                        deletedStatus, customerName, pageable);
-            } else if (meterNumber != null) {
-                inspectionPage = inspectionRepository.findAllByStatusIdNotAndMeterNoContainingIgnoreCase(
-                        deletedStatus, meterNumber, pageable);
-            } else {
-                inspectionPage = inspectionRepository.findAllByStatusIdNot(deletedStatus, pageable);
-            }
-        }
+        Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,pageable);
         List<InspectionResponse> inspectionResponses = inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionResponse)
                 .toList();
         Long totalRows = inspectionPage.getTotalElements();
         return new AdminInspectionResponse(inspectionResponses, totalRows);
+
     }
-    public Pageable createPageable(int page, int limit, String sort) {
+    private Page<Inspection> getAllInspectionsData(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, Pageable pageable) {
+        Day day = dateConverter.convertBetweenDays(startDateString, endDateString);
+        Long deletedStatus=3L;
+        Page<Inspection> inspectionPage;
+        if(day!=null){
+            if (statuses == null || statuses.isEmpty()) {
+                if (customerName != null && meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
+                            deletedStatus, day.startTime(), day.endTime(), customerName, meterNumber, pageable);
+                } else if (customerName != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCase(
+                            deletedStatus, day.startTime(), day.endTime(), customerName, pageable);
+                } else if (meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCase(
+                            deletedStatus, day.startTime(), day.endTime(), meterNumber, pageable);
+                } else {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetween(deletedStatus, day.startTime(), day.endTime(), pageable);
+                }
+            }
+            else {
+                if (customerName != null && meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(
+                            deletedStatus, day.startTime(), day.endTime(), customerName, meterNumber, statuses, pageable);
+                } else if (customerName != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndStatusIdIn(
+                            deletedStatus, day.startTime(), day.endTime(), customerName, statuses, pageable);
+                } else if (meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndStatusIdIn(
+                            deletedStatus, day.startTime(), day.endTime(), meterNumber, statuses, pageable);
+                } else {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndStatusIdIn(
+                            deletedStatus, day.startTime(), day.endTime(), statuses, pageable);
+                }
+            }
+        }
+        else {
+            if (statuses == null || statuses.isEmpty()) {
+                if (customerName != null && meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
+                            deletedStatus, customerName, meterNumber, pageable);
+                } else if (customerName != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCase(
+                            deletedStatus, customerName, pageable);
+                } else if (meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndMeterNoContainingIgnoreCase(
+                            deletedStatus, meterNumber, pageable);
+                } else {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNot(deletedStatus, pageable);
+                }
+            }
+            else {
+                if (customerName != null && meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(
+                            deletedStatus, customerName, meterNumber, statuses, pageable);
+                } else if (customerName != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndStatusIdIn(
+                            deletedStatus, customerName, statuses, pageable);
+                } else if (meterNumber != null) {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndMeterNoContainingIgnoreCaseAndStatusIdIn(
+                            deletedStatus, meterNumber, statuses, pageable);
+                } else {
+                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndStatusIdIn(
+                            deletedStatus, statuses, pageable);
+                }
+            }
+        }
+        return inspectionPage;
+    }
+    // Method to export data to Excel
+    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort) {
+        Pageable pageable = createPageable(sort);
+        Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        List<InspectionResponse> inspections = inspectionPage.getContent().stream()
+                .map(inspectionMapper::toInspectionResponse)
+                .toList();
+        return excelGenerator.generateExcel(inspections);
+    }
+
+    private Pageable createPageable(String sort) {
         if (sort != null && !sort.isEmpty()) {
             String[] sortParts = sort.split("%");
             String sortBy = sortParts[0];
@@ -221,10 +271,32 @@ public class InspectionServiceImpl implements InspectionService {
             // Use the mapping to get the actual field name
             String mappedField = fieldMappings.getOrDefault(sortBy, sortBy);
 
-            return PageRequest.of(page - 1, limit, Sort.by(sortDirection, mappedField));
+            return PageRequest.of(0, Integer.MAX_VALUE, Sort.by(sortDirection, mappedField));
         } else {
-            return PageRequest.of(page - 1, limit);
+            return Pageable.unpaged();
         }
+    }
+
+    public Pageable createPageable(int page, int limit, String sort) {
+            if (sort != null && !sort.isEmpty()) {
+                String[] sortParts = sort.split("%");
+                String sortBy = sortParts[0];
+                Sort.Direction sortDirection = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+
+                // Create a mapping between request parameter names and entity fields
+                Map<String, String> fieldMappings = Map.of(
+                        "registeredDate", "registeredOn",
+                        "metterNumber", "meterNo"
+                        // Add more mappings as needed
+                );
+
+                // Use the mapping to get the actual field name
+                String mappedField = fieldMappings.getOrDefault(sortBy, sortBy);
+
+                return PageRequest.of(page - 1, limit, Sort.by(sortDirection, mappedField));
+            } else {
+                return PageRequest.of(page - 1, limit);
+            }
     }
 
 
