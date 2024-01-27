@@ -7,6 +7,10 @@ import com.jedco.jedcoinspectionspring.services.InspectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -58,9 +62,27 @@ public class InspectionController {
                                                              @RequestParam(value = "limit", defaultValue = "20") Integer limit,
                                                              @RequestParam(value = "customerName", required = false) String customerName,
                                                              @RequestParam(value = "metterNumber", required = false) String meterNumber,
+                                                             @RequestParam(value = "statuses", required = false) List<Long> statuses,
                                                              @RequestParam(value = "sort", required = false) String sort
                                                              ) {
-        return this.inspectionService.adminInspectionsListByDate(startDate, endDate,customerName,meterNumber, page,limit,sort);
+        return this.inspectionService.adminInspectionsListByDate(startDate, endDate,customerName,meterNumber,statuses, page,limit,sort);
+    }
+
+    @GetMapping("/exportAdminToExcel")
+    public ResponseEntity<byte[]> exportInspectionsToExcel(
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "customerName", required = false) String customerName,
+            @RequestParam(value = "meterNumber", required = false) String meterNumber,
+            @RequestParam(value = "statuses", required = false) List<Long> statuses,
+            @RequestParam(value = "sort", required = false) String sort
+    ) {
+        byte[] excelData = inspectionService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber, statuses, sort);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "inspections.xlsx");
+        headers.setContentLength(excelData.length);
+        return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
     }
 
     @GetMapping("/sendInspectionsToSales")
