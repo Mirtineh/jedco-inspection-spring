@@ -32,4 +32,20 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
     Page<Inspection> findAllByStatusIdNotAndCustomerNameContainingIgnoreCase(Long deletedStatus, String customerName, Pageable pageable);
 
     Page<Inspection> findAllByStatusIdNotAndMeterNoContainingIgnoreCase(Long deletedStatus, String meterNumber, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, Date date, Date date1, String customerName, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, Date date, Date date1, String customerName, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, Date date, Date date1, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndRegisteredOnBetweenAndStatusIdIn(Long deletedStatus, Date date, Date date1, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, String customerName, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, String customerName, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdNotAndStatusIdIn(Long deletedStatus, List<Long> statuses, Pageable pageable);
 }
