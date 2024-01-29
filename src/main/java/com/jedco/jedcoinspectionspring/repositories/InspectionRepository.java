@@ -15,7 +15,7 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
 
     List<Inspection> findAllByStatusIdGreaterThanAndRegisteredOnBetween(Long legalStatusId, Date date, Date date1);
 
-    List<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetween(Long salesStatusId, Date date, Date date1);
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetween(Long salesStatusId, Date date, Date date1,Pageable pageable);
 
     Page<Inspection> findAllByStatusIdNotAndRegisteredOnBetween(Long deletedStatus, Date date, Date date1, Pageable pageable);
 
@@ -48,4 +48,34 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
     Page<Inspection> findAllByStatusIdNotAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long deletedStatus, String meterNumber, List<Long> statuses, Pageable pageable);
 
     Page<Inspection> findAllByStatusIdNotAndStatusIdIn(Long deletedStatus, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(Long salesStatusId, Date date, Date date1, String customerName, String meterNumber, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCase(Long salesStatusId, Date date, Date date1, String customerName, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndMeterNoContainingIgnoreCase(Long salesStatusId, Date date, Date date1, String meterNumber, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, Date date, Date date1, String customerName, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, Date date, Date date1, String customerName, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, Date date, Date date1, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndStatusIdIn(Long salesStatusId, Date date, Date date1, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(Long salesStatusId, String customerName, String meterNumber, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCase(Long salesStatusId, String customerName, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndMeterNoContainingIgnoreCase(Long salesStatusId, String meterNumber, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqual(Long salesStatusId, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, String customerName, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, String customerName, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, String meterNumber, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndStatusIdIn(Long salesStatusId, List<Long> statuses, Pageable pageable);
 }

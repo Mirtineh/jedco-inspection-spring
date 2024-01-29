@@ -9,16 +9,18 @@ import com.jedco.jedcoinspectionspring.models.*;
 import com.jedco.jedcoinspectionspring.repositories.*;
 import com.jedco.jedcoinspectionspring.rest.requests.QuotationInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.SalesAssessmentRegisterRequest;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionSalesResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.QuotationResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
-import com.jedco.jedcoinspectionspring.rest.responses.SalesAssessmentResponse;
+import com.jedco.jedcoinspectionspring.rest.responses.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -33,20 +35,23 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
     private final QuotationRepository quotationRepository;
 
     private final AsyncService asyncService;
+    private final PagingService pagingService;
+    private final SalesAndLegalService salesAndLegalService;
+    private final ExcelGenerator excelGenerator;
     private final DateConverter dateConverter;
     private final InspectionMapper inspectionMapper;
     private final SalesAssessmentMapper salesAssessmentMapper;
     private final QuotationMapper quotationMapper;
     @Override
-    public List<InspectionSalesResponse> salesInspectionsListByDate(String startDate, String endDate) {
-        Day day = dateConverter.convertBetweenDays(startDate, endDate);
-        if (day == null) return null;
-
+    public SalesInspectionResponse salesInspectionsListByDate(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, int page, int limit, String sort) {
+        Pageable pageable = pagingService.createPageable(page, limit, sort);
         Long salesStatusId=20L;
-        List<Inspection> inspections= inspectionRepository.findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetween(salesStatusId,day.startTime(),day.endTime());
-        return inspections.stream().map(inspectionMapper::toInspectionSalesResponse).toList();
+        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        List<InspectionSalesResponse> inspectionResponses= inspectionPage.getContent().stream()
+                .map(inspectionMapper::toInspectionSalesResponse).toList();
+        Long totalRows = inspectionPage.getTotalElements();
+        return new SalesInspectionResponse(inspectionResponses,totalRows);
     }
-
     @Override
     public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, String username) {
         Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
@@ -183,5 +188,15 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
         this.asyncService.postHistory(taskHistory);
 
         return new ResponseDTO(true, "Quotation Submitted Successfully!");
+    }
+
+    @Override
+    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort) {
+        Pageable pageable = pagingService.createPageable(sort);
+        Long salesStatusId=20L;
+        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        List<InspectionSalesResponse> inspectionResponses= inspectionPage.getContent().stream()
+                .map(inspectionMapper::toInspectionSalesResponse).toList();
+        return excelGenerator.generateSalesExcel(inspectionResponses);
     }
 }
