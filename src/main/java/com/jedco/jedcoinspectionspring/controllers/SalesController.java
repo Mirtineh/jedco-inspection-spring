@@ -2,14 +2,15 @@ package com.jedco.jedcoinspectionspring.controllers;
 
 import com.jedco.jedcoinspectionspring.rest.requests.QuotationInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.SalesAssessmentRegisterRequest;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionSalesResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.QuotationResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
-import com.jedco.jedcoinspectionspring.rest.responses.SalesAssessmentResponse;
+import com.jedco.jedcoinspectionspring.rest.responses.*;
 import com.jedco.jedcoinspectionspring.services.InspectionSalesService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,8 +29,33 @@ public class SalesController {
 
     @GetMapping("/getSalesInspectionSByDate")
     @PreAuthorize("hasAnyAuthority('VIEW_INSPECTION', 'REGISTER_INSPECTION', 'UPDATE_INSPECTION')")
-    public List<InspectionSalesResponse> getSalesInspectionSByDate(@RequestParam("startDate") String startDate, @RequestParam("endDate") String endDate) {
-        return inspectionSalesService.salesInspectionsListByDate(startDate, endDate);
+    public SalesInspectionResponse getSalesInspectionSByDate(
+            @RequestParam(value = "startDate",required = false) String startDate,
+            @RequestParam(value = "endDate",required = false) String endDate,
+            @RequestParam(value = "page",defaultValue = "1") Integer page,
+            @RequestParam(value = "limit", defaultValue = "20") Integer limit,
+            @RequestParam(value = "customerName", required = false) String customerName,
+            @RequestParam(value = "metterNumber", required = false) String meterNumber,
+            @RequestParam(value = "statuses", required = false) List<Long> statuses,
+            @RequestParam(value = "sort", required = false) String sort
+    ) {
+        return inspectionSalesService.salesInspectionsListByDate(startDate, endDate, customerName,meterNumber,statuses, page,limit,sort);
+    }
+    @GetMapping("/exportSalesToExcel")
+    public ResponseEntity<byte[]> exportInspectionsToExcel(
+            @RequestParam(value = "startDate", required = false) String startDate,
+            @RequestParam(value = "endDate", required = false) String endDate,
+            @RequestParam(value = "customerName", required = false) String customerName,
+            @RequestParam(value = "meterNumber", required = false) String meterNumber,
+            @RequestParam(value = "statuses", required = false) List<Long> statuses,
+            @RequestParam(value = "sort", required = false) String sort
+    ) {
+        byte[] excelData = inspectionSalesService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber, statuses, sort);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
+        headers.setContentDispositionFormData("attachment", "inspections.xlsx");
+        headers.setContentLength(excelData.length);
+        return new ResponseEntity<>(excelData, headers, HttpStatus.OK);
     }
 
     @GetMapping("/updateInspectionStatus")

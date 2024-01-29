@@ -2,15 +2,12 @@ package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.rest.requests.QuotationInsertRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.SalesAssessmentRegisterRequest;
-import com.jedco.jedcoinspectionspring.rest.responses.InspectionSalesResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.QuotationResponse;
-import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
-import com.jedco.jedcoinspectionspring.rest.responses.SalesAssessmentResponse;
+import com.jedco.jedcoinspectionspring.rest.responses.*;
 
 import java.util.List;
 
 public interface InspectionSalesService {
-    List<InspectionSalesResponse> salesInspectionsListByDate(String startDate, String endDate);
+    SalesInspectionResponse salesInspectionsListByDate(String startDate, String endDate, String customerName, String meterNumber, List<Long> statuses, int page, int limit, String sort);
 
     ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, String username);
 
@@ -22,4 +19,5 @@ public interface InspectionSalesService {
 
     ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username);
 
+    byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort);
 }
