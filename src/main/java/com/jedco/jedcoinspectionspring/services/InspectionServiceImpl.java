@@ -50,6 +50,8 @@ public class InspectionServiceImpl implements InspectionService {
     private final InspectionCodeMapper inspectionCodeMapper;
     private final InspectionMapper inspectionMapper;
     private final DateConverter dateConverter;
+    private final PagingService pagingService;
+
     @Value("${file.upload-dir}")
     private String uploadDir;
     @Override
@@ -168,7 +170,7 @@ public class InspectionServiceImpl implements InspectionService {
 
     @Override
     public AdminInspectionResponse adminInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber,List<Long> statuses, int page, int limit,String sort) {
-        Pageable pageable = createPageable(page, limit, sort);
+        Pageable pageable = pagingService.createPageable(page, limit, sort);
         Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,pageable);
         List<InspectionResponse> inspectionResponses = inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionResponse)
@@ -247,56 +249,12 @@ public class InspectionServiceImpl implements InspectionService {
     }
     // Method to export data to Excel
     public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort) {
-        Pageable pageable = createPageable(sort);
+        Pageable pageable = pagingService.createPageable(sort);
         Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,pageable);
         List<InspectionResponse> inspections = inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionResponse)
                 .toList();
         return excelGenerator.generateExcel(inspections);
-    }
-
-    private Pageable createPageable(String sort) {
-        if (sort != null && !sort.isEmpty()) {
-            String[] sortParts = sort.split("%");
-            String sortBy = sortParts[0];
-            Sort.Direction sortDirection = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
-            // Create a mapping between request parameter names and entity fields
-            Map<String, String> fieldMappings = Map.of(
-                    "registeredDate", "registeredOn",
-                    "metterNumber", "meterNo"
-                    // Add more mappings as needed
-            );
-
-            // Use the mapping to get the actual field name
-            String mappedField = fieldMappings.getOrDefault(sortBy, sortBy);
-
-            return PageRequest.of(0, Integer.MAX_VALUE, Sort.by(sortDirection, mappedField));
-        } else {
-            return Pageable.unpaged();
-        }
-    }
-
-    public Pageable createPageable(int page, int limit, String sort) {
-            if (sort != null && !sort.isEmpty()) {
-                String[] sortParts = sort.split("%");
-                String sortBy = sortParts[0];
-                Sort.Direction sortDirection = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
-                // Create a mapping between request parameter names and entity fields
-                Map<String, String> fieldMappings = Map.of(
-                        "registeredDate", "registeredOn",
-                        "metterNumber", "meterNo"
-                        // Add more mappings as needed
-                );
-
-                // Use the mapping to get the actual field name
-                String mappedField = fieldMappings.getOrDefault(sortBy, sortBy);
-
-                return PageRequest.of(page - 1, limit, Sort.by(sortDirection, mappedField));
-            } else {
-                return PageRequest.of(page - 1, limit);
-            }
     }
 
 

@@ -10,8 +10,11 @@ import com.jedco.jedcoinspectionspring.repositories.StatusRepository;
 import com.jedco.jedcoinspectionspring.repositories.UserRepository;
 import com.jedco.jedcoinspectionspring.rest.responses.InspectionSalesResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
+import com.jedco.jedcoinspectionspring.rest.responses.SalesInspectionResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -27,16 +30,21 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
     private final UserRepository userRepository;
     private final SalesAssignmentRepository salesAssignmentRepository;
     private final AsyncService asyncService;
+    private final SalesAndLegalService salesAndLegalService;
+    private final PagingService pagingService;
+    private final ExcelGenerator excelGenerator;
 
     private final DateConverter dateConverter;
     private final InspectionMapper inspectionMapper;
     @Override
-    public List<InspectionSalesResponse> legalInspectionsListByDate(String startDate, String endDate) {
-        Long legalStatusId= 30L;
-        Day day = dateConverter.convertBetweenDays(startDate, endDate);
-        if (day == null) return null;
-        List<Inspection> inspections = inspectionRepository.findAllByStatusIdGreaterThanAndRegisteredOnBetween(legalStatusId,day.startTime(),day.endTime());
-        return inspections.stream().map(inspectionMapper::toInspectionSalesResponse).toList();
+    public SalesInspectionResponse legalInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber,List<Long> statuses, int page, int limit,String sort) {
+        Pageable pageable = pagingService.createPageable(page, limit, sort);
+        Long salesStatusId=30L;
+        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        List<InspectionSalesResponse> inspectionResponses= inspectionPage.getContent().stream()
+                .map(inspectionMapper::toInspectionSalesResponse).toList();
+        Long totalRows = inspectionPage.getTotalElements();
+        return new SalesInspectionResponse(inspectionResponses,totalRows);
 
     }
 
@@ -89,5 +97,15 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
 
         return new ResponseDTO(true, "Inspection Status Updated Successfully!");
 
+    }
+
+    @Override
+    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort) {
+        Pageable pageable = pagingService.createPageable(sort);
+        Long salesStatusId=30L;
+        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        List<InspectionSalesResponse> inspectionResponses= inspectionPage.getContent().stream()
+                .map(inspectionMapper::toInspectionSalesResponse).toList();
+        return excelGenerator.generateSalesExcel(inspectionResponses);
     }
 }
