@@ -3,6 +3,7 @@ package com.jedco.jedcoinspectionspring.rest.responses;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.util.Date;
+import java.util.List;
 
 public record TaskHistoryResponse(
         String id,
@@ -16,6 +17,7 @@ public record TaskHistoryResponse(
         String teamName,
         String teamLeader,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER)
-        Date actionDate
+        Date actionDate,
+        List<UploadedFileResponse> fileResponseList
 ) {
 }
