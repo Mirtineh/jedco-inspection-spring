@@ -5,10 +5,9 @@ import com.jedco.jedcoinspectionspring.services.TaskHistoryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.core.io.Resource;
 
 import java.util.List;
 
@@ -23,5 +22,10 @@ public class TaskHistoryController {
     @GetMapping("/getTaskHistory")
     public List<TaskHistoryResponse> getTaskHistory(@RequestParam("typeId") Long typeId) {
         return this.taskHistoryService.getTaskHistory(typeId);
+    }
+
+    @GetMapping("/download/{fileId:.+}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable Long fileId) {
+        return this.taskHistoryService.downloadFile(fileId);
     }
 }
