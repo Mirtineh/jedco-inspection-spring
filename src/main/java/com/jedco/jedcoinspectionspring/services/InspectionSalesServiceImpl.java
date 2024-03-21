@@ -1,7 +1,6 @@
 package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.Util.DateConverter;
-import com.jedco.jedcoinspectionspring.Util.Day;
 import com.jedco.jedcoinspectionspring.mappers.InspectionMapper;
 import com.jedco.jedcoinspectionspring.mappers.QuotationMapper;
 import com.jedco.jedcoinspectionspring.mappers.SalesAssessmentMapper;
@@ -12,16 +11,19 @@ import com.jedco.jedcoinspectionspring.rest.requests.SalesAssessmentRegisterRequ
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -42,6 +44,9 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
     private final InspectionMapper inspectionMapper;
     private final SalesAssessmentMapper salesAssessmentMapper;
     private final QuotationMapper quotationMapper;
+
+    @Value("${file.upload-dir}")
+    private String uploadDir;
     @Override
     public SalesInspectionResponse salesInspectionsListByDate(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, int page, int limit, String sort) {
         Pageable pageable = pagingService.createPageable(page, limit, sort);
@@ -53,7 +58,7 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
         return new SalesInspectionResponse(inspectionResponses,totalRows);
     }
     @Override
-    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, String username) {
+    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, MultipartFile[] files, String username){
         Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
         Optional<Status> optionalStatus = statusRepository.findById(statusId);
 
@@ -95,6 +100,37 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
         taskHistory.setActionBy(user);
         taskHistory.setActionType(status.getName().replace("-"," ").toUpperCase());
         taskHistory.setHistoryDetails(user.getFirstName()+" "+user.getLastName()+" Updated Inspection status to "+status.getName().replace("-"," "));
+        List<UploadedFile> uploadedFileList=new ArrayList<>();
+        if (files != null) {
+            String folder = uploadDir;
+            String path = File.separator+"Sales_files"+File.separator+inspectionId+File.separator;
+            folder+=path;
+            File directory = new File(folder);
+
+            if (!directory.exists()) {
+                directory.mkdirs(); // Create directory if it doesn't exist
+            }
+            for (MultipartFile file : files) {
+                try {
+                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                    Path filePath = Paths.get(folder + fileName);
+                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                    UploadedFile uploadedFile = new UploadedFile();
+                    uploadedFile.setName(file.getOriginalFilename());
+                    uploadedFile.setPath(path+fileName);
+                    uploadedFile.setTaskHistory(taskHistory);
+                    uploadedFile.setUploadedOn(new Date());
+                    uploadedFile.setUploadedBy(user);
+                    uploadedFile.setTaskHistory(taskHistory);
+                    uploadedFileList.add(uploadedFile);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    // Handle file saving exception
+                }
+
+            }
+            taskHistory.setUploadedFiles(uploadedFileList);
+        }
 
         this.asyncService.postHistory(taskHistory);
         return new ResponseDTO(true, "Inspection Status Updated Successfully!");
