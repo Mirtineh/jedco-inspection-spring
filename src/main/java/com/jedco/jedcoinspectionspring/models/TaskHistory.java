@@ -3,7 +3,9 @@ package com.jedco.jedcoinspectionspring.models;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -34,4 +36,7 @@ public class TaskHistory extends BaseEntity {
 
     @Column(name="action_type", length=200)
     private String actionType;
+
+    @OneToMany(mappedBy = "taskHistory",cascade = CascadeType.ALL)
+    private List<UploadedFile> uploadedFiles= new ArrayList<>();
 }
