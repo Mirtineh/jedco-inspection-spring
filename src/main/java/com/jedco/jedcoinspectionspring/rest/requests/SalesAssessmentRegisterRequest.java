@@ -5,6 +5,7 @@ public record SalesAssessmentRegisterRequest(
         String txNo,
         Double distance,
         Double northing,
-        Double easting
+        Double easting,
+        String note
 ) {
 }

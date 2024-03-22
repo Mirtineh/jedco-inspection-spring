@@ -1,8 +1,7 @@
 package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.mappers.TaskHistoryMapper;
-import com.jedco.jedcoinspectionspring.models.TaskHistory;
-import com.jedco.jedcoinspectionspring.models.UploadedFile;
+import com.jedco.jedcoinspectionspring.models.*;
 import com.jedco.jedcoinspectionspring.repositories.TaskHistoryRepository;
 import com.jedco.jedcoinspectionspring.repositories.UploadedFileRepository;
 import com.jedco.jedcoinspectionspring.rest.responses.TaskHistoryResponse;
@@ -15,6 +14,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -22,8 +22,8 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.Optional;
+import java.nio.file.StandardCopyOption;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -32,6 +32,7 @@ public class TaskHistoryServiceImpl implements TaskHistoryService {
     private final TaskHistoryRepository taskHistoryRepository;
     private final UploadedFileRepository uploadedFileRepository;
     private final TaskHistoryMapper taskHistoryMapper;
+    private final AsyncService asyncService;
     @Value("${file.upload-dir}")
     private String uploadDir;
     @Override
@@ -70,5 +71,50 @@ public class TaskHistoryServiceImpl implements TaskHistoryService {
                 .contentType(MediaType.parseMediaType(contentType))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + uploadedFile.getName() + "\"")
                 .body(resource);
+    }
+
+    @Override
+    public void insertTaskHistory(Inspection inspection, String note, User user, String actionType, String detailInfo, String fileSeparator, MultipartFile[] files) {
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setActionDate(new Date());
+        taskHistory.setAdditionalNote(note);
+        taskHistory.setInspection(inspection);
+        taskHistory.setActionBy(user);
+        taskHistory.setActionType(actionType);
+        taskHistory.setHistoryDetails(detailInfo);
+        List<UploadedFile> uploadedFileList=new ArrayList<>();
+        if (files != null) {
+            String folder = uploadDir;
+            String path = File.separator+fileSeparator+File.separator+inspection.getId()+File.separator;
+            folder+=path;
+            File directory = new File(folder);
+
+            if (!directory.exists()) {
+                directory.mkdirs(); // Create directory if it doesn't exist
+            }
+            for (MultipartFile file : files) {
+                try {
+                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+                    Path filePath = Paths.get(folder + fileName);
+                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+                    UploadedFile uploadedFile = new UploadedFile();
+                    uploadedFile.setName(file.getOriginalFilename());
+                    uploadedFile.setPath(path+fileName);
+                    uploadedFile.setTaskHistory(taskHistory);
+                    uploadedFile.setUploadedOn(new Date());
+                    uploadedFile.setUploadedBy(user);
+                    uploadedFile.setTaskHistory(taskHistory);
+                    uploadedFileList.add(uploadedFile);
+                } catch (Exception e) {
+                    log.error(e.getMessage());
+//                    e.printStackTrace();
+                    // Handle file saving exception
+                }
+
+            }
+            taskHistory.setUploadedFiles(uploadedFileList);
+        }
+
+        this.asyncService.postHistory(taskHistory);
     }
 }

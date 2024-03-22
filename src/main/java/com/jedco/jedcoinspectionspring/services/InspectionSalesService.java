@@ -12,13 +12,13 @@ public interface InspectionSalesService {
 
     ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, MultipartFile[] files, String username);
 
-    ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, String username);
+    ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, MultipartFile[] files, String username);
 
     List<SalesAssessmentResponse> getSalesAssessment(Long inspectionId);
 
     List<QuotationResponse> getQuotation(Long inspectionId);
 
-    ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username);
+    ResponseDTO insertQuotation(QuotationInsertRequest insertDto, MultipartFile[] files, String username);
 
     byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort);
 }

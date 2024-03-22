@@ -17,12 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 @Slf4j
@@ -39,6 +33,7 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
     private final AsyncService asyncService;
     private final PagingService pagingService;
     private final SalesAndLegalService salesAndLegalService;
+    private final TaskHistoryService taskHistoryService;
     private final ExcelGenerator excelGenerator;
     private final DateConverter dateConverter;
     private final InspectionMapper inspectionMapper;
@@ -92,54 +87,16 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
 
         inspectionRepository.save(inspection);
 
-
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setActionDate(new Date());
-        taskHistory.setAdditionalNote(noteAdded);
-        taskHistory.setInspection(inspection);
-        taskHistory.setActionBy(user);
-        taskHistory.setActionType(status.getName().replace("-"," ").toUpperCase());
-        taskHistory.setHistoryDetails(user.getFirstName()+" "+user.getLastName()+" Updated Inspection status to "+status.getName().replace("-"," "));
-        List<UploadedFile> uploadedFileList=new ArrayList<>();
-        if (files != null) {
-            String folder = uploadDir;
-            String path = File.separator+"Sales_files"+File.separator+inspectionId+File.separator;
-            folder+=path;
-            File directory = new File(folder);
-
-            if (!directory.exists()) {
-                directory.mkdirs(); // Create directory if it doesn't exist
-            }
-            for (MultipartFile file : files) {
-                try {
-                    String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
-                    Path filePath = Paths.get(folder + fileName);
-                    Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-                    UploadedFile uploadedFile = new UploadedFile();
-                    uploadedFile.setName(file.getOriginalFilename());
-                    uploadedFile.setPath(path+fileName);
-                    uploadedFile.setTaskHistory(taskHistory);
-                    uploadedFile.setUploadedOn(new Date());
-                    uploadedFile.setUploadedBy(user);
-                    uploadedFile.setTaskHistory(taskHistory);
-                    uploadedFileList.add(uploadedFile);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    // Handle file saving exception
-                }
-
-            }
-            taskHistory.setUploadedFiles(uploadedFileList);
-        }
-
-        this.asyncService.postHistory(taskHistory);
+        String historyDetail=user.getFirstName()+" "+user.getLastName()+" Updated Inspection status to "+status.getName().replace("-"," ");
+        String actionType=status.getName().replace("-"," ").toUpperCase();
+        taskHistoryService.insertTaskHistory(inspection,noteAdded,user,actionType,historyDetail,"Sales_files",files);
         return new ResponseDTO(true, "Inspection Status Updated Successfully!");
 
 
     }
 
     @Override
-    public ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, String username) {
+    public ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, MultipartFile[] files, String username) {
         Optional<Inspection> optionalInspection = inspectionRepository.findById(insertDto.inspectionId());
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if(optionalInspection.isEmpty()){
@@ -164,14 +121,9 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
 
         inspectionRepository.save(inspection);
 
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setActionDate(new Date());
-        taskHistory.setInspection(inspection);
-        taskHistory.setActionBy(user);
-        taskHistory.setActionType("SALES ASSESSMENT SUBMITTED");
-        taskHistory.setHistoryDetails(user.getFirstName()+" "+user.getLastName()+" Submitted Sales Assessment");
-
-        this.asyncService.postHistory(taskHistory);
+        String actionType= "SALES ASSESSMENT SUBMITTED";
+        String historyDetail= user.getFirstName()+" "+user.getLastName()+" Submitted Sales Assessment";
+        taskHistoryService.insertTaskHistory(inspection,insertDto.note(),user,actionType,historyDetail,"Sales_files",files);
 
         return new ResponseDTO(true, "Sales Assessment Submitted Successfully!");
 
@@ -190,7 +142,7 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
     }
 
     @Override
-    public ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username) {
+    public ResponseDTO insertQuotation(QuotationInsertRequest insertDto, MultipartFile[] files, String username) {
         Optional<Inspection> optionalInspection = inspectionRepository.findById(insertDto.inspectionId());
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if(optionalInspection.isEmpty()){
@@ -214,15 +166,9 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
 
         inspectionRepository.save(inspection);
 
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setActionDate(new Date());
-        taskHistory.setInspection(inspection);
-        taskHistory.setActionBy(user);
-        taskHistory.setActionType("QUOTATION SUBMITTED");
-        taskHistory.setHistoryDetails(user.getFirstName()+" "+user.getLastName()+" Submitted Quotation");
-
-        this.asyncService.postHistory(taskHistory);
-
+        String actionType="QUOTATION SUBMITTED";
+        String historyDetail=user.getFirstName()+" "+user.getLastName()+" Submitted Quotation";
+        taskHistoryService.insertTaskHistory(inspection,insertDto.note(),user,actionType,historyDetail,"Sales_files",files);
         return new ResponseDTO(true, "Quotation Submitted Successfully!");
     }
 
