@@ -142,7 +142,7 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
     }
 
     @Override
-    public ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username) {
+    public ResponseDTO insertQuotation(QuotationInsertRequest insertDto, MultipartFile[] files, String username) {
         Optional<Inspection> optionalInspection = inspectionRepository.findById(insertDto.inspectionId());
         Optional<User> optionalUser = userRepository.findByUsername(username);
         if(optionalInspection.isEmpty()){
@@ -166,15 +166,9 @@ public class InspectionSalesServiceImpl implements InspectionSalesService {
 
         inspectionRepository.save(inspection);
 
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setActionDate(new Date());
-        taskHistory.setInspection(inspection);
-        taskHistory.setActionBy(user);
-        taskHistory.setActionType("QUOTATION SUBMITTED");
-        taskHistory.setHistoryDetails(user.getFirstName()+" "+user.getLastName()+" Submitted Quotation");
-
-        this.asyncService.postHistory(taskHistory);
-
+        String actionType="QUOTATION SUBMITTED";
+        String historyDetail=user.getFirstName()+" "+user.getLastName()+" Submitted Quotation";
+        taskHistoryService.insertTaskHistory(inspection,insertDto.note(),user,actionType,historyDetail,"Sales_files",files);
         return new ResponseDTO(true, "Quotation Submitted Successfully!");
     }
 

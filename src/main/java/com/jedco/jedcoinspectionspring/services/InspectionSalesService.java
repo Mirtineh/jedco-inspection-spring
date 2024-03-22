@@ -18,7 +18,7 @@ public interface InspectionSalesService {
 
     List<QuotationResponse> getQuotation(Long inspectionId);
 
-    ResponseDTO insertQuotation(QuotationInsertRequest insertDto, String username);
+    ResponseDTO insertQuotation(QuotationInsertRequest insertDto, MultipartFile[] files, String username);
 
     byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort);
 }
