@@ -12,7 +12,7 @@ public interface InspectionSalesService {
 
     ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, MultipartFile[] files, String username);
 
-    ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, String username);
+    ResponseDTO insertSalesAssessment(SalesAssessmentRegisterRequest insertDto, MultipartFile[] files, String username);
 
     List<SalesAssessmentResponse> getSalesAssessment(Long inspectionId);
 

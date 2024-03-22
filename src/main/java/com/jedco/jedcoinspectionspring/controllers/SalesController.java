@@ -75,11 +75,18 @@ public class SalesController {
         return this.inspectionSalesService.getSalesAssessment(inspectionId);
     }
 
-    @PostMapping("/insertSalesAssessment")
-    public ResponseDTO insertSalesAssessment(@RequestBody SalesAssessmentRegisterRequest insertDto) {
+    @PostMapping(value = "/insertSalesAssessment")
+    public ResponseDTO insertSalesAssessment(@RequestParam("inspectionId") Long inspectionId,
+                                             @RequestParam("txNo") String txNo,
+                                             @RequestParam("distance") Double distance,
+                                             @RequestParam("northing") Double northing,
+                                             @RequestParam("easting") Double easting,
+                                             @RequestParam(value = "note", required = false) String note,
+                                             @RequestParam(value = "files",required = false) MultipartFile[] files) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.inspectionSalesService.insertSalesAssessment(insertDto, userDetails.getUsername());
+        var insertDto= new SalesAssessmentRegisterRequest(inspectionId,txNo,distance,northing,easting,note);
+        return this.inspectionSalesService.insertSalesAssessment(insertDto,files, userDetails.getUsername());
     }
 
     @GetMapping("/getQuotationList")
