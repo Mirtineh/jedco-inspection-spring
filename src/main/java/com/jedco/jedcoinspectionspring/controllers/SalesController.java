@@ -95,9 +95,14 @@ public class SalesController {
     }
 
     @PostMapping("/insertQuotation")
-    public ResponseDTO insertQuotation(@RequestBody QuotationInsertRequest insertDto) {
+    public ResponseDTO insertQuotation(@RequestParam(value = "inspectionId",required = false) Long inspectionId,
+                                       @RequestParam(value = "quotationRef", required = false) String quotationRef,
+                                       @RequestParam(value = "amount", required = false) Double amount,
+                                       @RequestParam(value = "note", required = false) String note,
+                                       @RequestParam(value = "files",required = false) MultipartFile[] files) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return inspectionSalesService.insertQuotation(insertDto, userDetails.getUsername());
+        var insertDto= new QuotationInsertRequest(inspectionId,quotationRef,amount,note);
+        return inspectionSalesService.insertQuotation(insertDto,files, userDetails.getUsername());
     }
 }
