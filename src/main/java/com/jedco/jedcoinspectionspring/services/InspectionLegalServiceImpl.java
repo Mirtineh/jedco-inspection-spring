@@ -50,7 +50,7 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
     }
 
     @Override
-    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String note, MultipartFile[] files, String username) {
+    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String note, String legalCaseNo, MultipartFile[] files, String username) {
         Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
         Optional<Status> optionalStatus = statusRepository.findById(statusId);
 
@@ -67,9 +67,16 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
             return new ResponseDTO(false, "User Not Found!");
         }
         var status=optionalStatus.get();
+        long caseOpenedStatus= 32L;
+        if(status.getId().equals(caseOpenedStatus) && (legalCaseNo == null || legalCaseNo.isEmpty())){
+            return new ResponseDTO(false,"Case Number Can not be empty!");
+        }
         var user= optionalUser.get();
         var inspection= optionalInspection.get();
         inspection.setStatus(status);
+        if(status.getId().equals(caseOpenedStatus)){
+            inspection.setLegalCaseNo(legalCaseNo);
+        }
 
         Optional<SalesAssignment> optionalAssignment = salesAssignmentRepository.findOneByInspectionId(inspectionId);
         if(optionalAssignment.isPresent()){
