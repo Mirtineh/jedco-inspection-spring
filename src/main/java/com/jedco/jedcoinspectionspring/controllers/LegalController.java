@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -36,10 +37,11 @@ public class LegalController {
             @RequestParam(value = "limit", defaultValue = "20") Integer limit,
             @RequestParam(value = "customerName", required = false) String customerName,
             @RequestParam(value = "metterNumber", required = false) String meterNumber,
+            @RequestParam(value = "legalCaseNo", required = false) String legalCaseNo,
             @RequestParam(value = "statuses", required = false) List<Long> statuses,
             @RequestParam(value = "sort", required = false) String sort
     ) {
-        return this.legalService.legalInspectionsListByDate(startDate, endDate, customerName,meterNumber,statuses, page,limit,sort);
+        return this.legalService.legalInspectionsListByDate(startDate, endDate, customerName,meterNumber,legalCaseNo,statuses, page,limit,sort);
     }
 
     @GetMapping("/exportLegalToExcel")
@@ -48,10 +50,11 @@ public class LegalController {
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "customerName", required = false) String customerName,
             @RequestParam(value = "meterNumber", required = false) String meterNumber,
+            @RequestParam(value = "legalCaseNo", required = false) String legalCaseNo,
             @RequestParam(value = "statuses", required = false) List<Long> statuses,
             @RequestParam(value = "sort", required = false) String sort
     ) {
-        byte[] excelData = legalService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber, statuses, sort);
+        byte[] excelData = legalService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber,legalCaseNo, statuses, sort);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "inspections.xlsx");
@@ -60,9 +63,14 @@ public class LegalController {
     }
 
     @PostMapping("/updateInspectionStatus")
-    public ResponseDTO updateInspectionStatus(@RequestBody UpdateInspectionStatusRequest dto) {
+    public ResponseDTO updateInspectionStatus(@RequestParam("inspectionId") Long inspectionId,
+                                              @RequestParam("statusId") Long statusId,
+                                              @RequestParam(value = "noteAdded",required = false) String noteAdded,
+                                              @RequestParam(value = "legalCaseNo",required = false) String legalCaseNo,
+                                              @RequestParam(value = "files",required = false) MultipartFile[] files
+    ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.legalService.updateInspectionStatus(dto.inspectionId(), dto.statusId(), dto.note(), userDetails.getUsername());
+        return this.legalService.updateInspectionStatus(inspectionId,statusId, noteAdded,legalCaseNo,files, userDetails.getUsername());
     }
 }

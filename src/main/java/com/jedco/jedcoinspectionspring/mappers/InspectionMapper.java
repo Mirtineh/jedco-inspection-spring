@@ -83,7 +83,15 @@ public interface InspectionMapper {
     @Mapping(target = "checkListResultList", source = "installationChecklists")
     @Mapping(target = "assignmentNote", source = "salesAssignments", qualifiedByName = "mapAssignmentNote")
     @Mapping(target = "assesmentSubmitted", source = "assessments", qualifiedByName = "mapAssessments")
+    @Mapping(target = "legalCaseNo", source = "legalCaseNo", qualifiedByName = "mapLegalCaseNo")
     InspectionSalesResponse toInspectionSalesResponse(Inspection inspection);
+
+    @Named("mapLegalCaseNo")
+    default String mapLegalCasNo(String legalCaseNo){
+        if(legalCaseNo==null)
+            return "";
+        return legalCaseNo;
+    }
 
     @Named("mapAssignmentNote")
     default String mapAssignmentNote(Set<SalesAssignment> assessments){

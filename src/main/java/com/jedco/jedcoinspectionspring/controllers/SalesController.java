@@ -37,10 +37,11 @@ public class SalesController {
             @RequestParam(value = "limit", defaultValue = "20") Integer limit,
             @RequestParam(value = "customerName", required = false) String customerName,
             @RequestParam(value = "metterNumber", required = false) String meterNumber,
+            @RequestParam(value = "legalCaseNo", required = false) String legalCaseNo,
             @RequestParam(value = "statuses", required = false) List<Long> statuses,
             @RequestParam(value = "sort", required = false) String sort
     ) {
-        return inspectionSalesService.salesInspectionsListByDate(startDate, endDate, customerName,meterNumber,statuses, page,limit,sort);
+        return inspectionSalesService.salesInspectionsListByDate(startDate, endDate, customerName,meterNumber,legalCaseNo,statuses, page,limit,sort);
     }
     @GetMapping("/exportSalesToExcel")
     public ResponseEntity<byte[]> exportInspectionsToExcel(
@@ -48,10 +49,11 @@ public class SalesController {
             @RequestParam(value = "endDate", required = false) String endDate,
             @RequestParam(value = "customerName", required = false) String customerName,
             @RequestParam(value = "meterNumber", required = false) String meterNumber,
+            @RequestParam(value = "legalCaseNo", required = false) String legalCaseNo,
             @RequestParam(value = "statuses", required = false) List<Long> statuses,
             @RequestParam(value = "sort", required = false) String sort
     ) {
-        byte[] excelData = inspectionSalesService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber, statuses, sort);
+        byte[] excelData = inspectionSalesService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber,legalCaseNo, statuses, sort);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "inspections.xlsx");

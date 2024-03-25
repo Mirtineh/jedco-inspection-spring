@@ -31,6 +31,7 @@ public record InspectionSalesResponse(
         List<CodeResultResponse> codeResultList,
         String filePath,
         boolean assesmentSubmitted,
-        String customerStatus
+        String customerStatus,
+        String legalCaseNo
 ) {
 }
