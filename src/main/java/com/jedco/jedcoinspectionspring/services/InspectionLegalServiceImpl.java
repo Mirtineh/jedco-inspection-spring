@@ -38,10 +38,10 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
     private final DateConverter dateConverter;
     private final InspectionMapper inspectionMapper;
     @Override
-    public SalesInspectionResponse legalInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber,List<Long> statuses, int page, int limit,String sort) {
+    public SalesInspectionResponse legalInspectionsListByDate(String startDateString, String endDateString, String customerName, String meterNumber, String legalCaseNo, List<Long> statuses, int page, int limit, String sort) {
         Pageable pageable = pagingService.createPageable(page, limit, sort);
         Long salesStatusId=30L;
-        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,legalCaseNo,statuses,pageable);
         List<InspectionSalesResponse> inspectionResponses= inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionSalesResponse).toList();
         Long totalRows = inspectionPage.getTotalElements();
@@ -101,10 +101,10 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
     }
 
     @Override
-    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort) {
+    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, String legalCaseNo, List<Long> statuses, String sort) {
         Pageable pageable = pagingService.createPageable(sort);
         Long salesStatusId=30L;
-        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        Page<Inspection> inspectionPage=salesAndLegalService.getAllInspectionsData(salesStatusId,startDateString,endDateString,customerName,meterNumber, legalCaseNo, statuses,pageable);
         List<InspectionSalesResponse> inspectionResponses= inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionSalesResponse).toList();
         return excelGenerator.generateSalesExcel(inspectionResponses);
