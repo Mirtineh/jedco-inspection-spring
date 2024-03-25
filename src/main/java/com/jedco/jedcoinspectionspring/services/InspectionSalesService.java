@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public interface InspectionSalesService {
-    SalesInspectionResponse salesInspectionsListByDate(String startDate, String endDate, String customerName, String meterNumber, List<Long> statuses, int page, int limit, String sort);
+    SalesInspectionResponse salesInspectionsListByDate(String startDate, String endDate, String customerName, String meterNumber, String legalCaseNo, List<Long> statuses, int page, int limit, String sort);
 
     ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String noteAdded, MultipartFile[] files, String username);
 
@@ -20,5 +20,5 @@ public interface InspectionSalesService {
 
     ResponseDTO insertQuotation(QuotationInsertRequest insertDto, MultipartFile[] files, String username);
 
-    byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort);
+    byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, String legalCaseNo, List<Long> statuses, String sort);
 }

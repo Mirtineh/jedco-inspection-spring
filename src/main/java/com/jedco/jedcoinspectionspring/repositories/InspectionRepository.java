@@ -78,4 +78,36 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
     Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndMeterNoContainingIgnoreCaseAndStatusIdIn(Long salesStatusId, String meterNumber, List<Long> statuses, Pageable pageable);
 
     Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndStatusIdIn(Long salesStatusId, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCase(Long statusId, Date date, Date date1, String customerName, String meterNumber, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCase(Long statusId, Date date, Date date1, String customerName, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCase(Long statusId, Date date, Date date1, String meterNumber, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndLegalCaseNoContainingIgnoreCase(Long statusId, Date date, Date date1, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCase(Long statusId, String customerName, String meterNumber, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCase(Long statusId, String customerName, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCase(Long statusId, String meterNumber, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndLegalCaseNoContainingIgnoreCase(Long statusId, String legalCaseNo, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, String customerName, String meterNumber, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndCustomerNameContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, String customerName, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, String meterNumber, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, Date date, Date date1, String customerName, String meterNumber, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, Date date, Date date1, String customerName, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, Date date, Date date1, String meterNumber, String legalCaseNo, List<Long> statuses, Pageable pageable);
+
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, Date date, Date date1, String legalCaseNo, List<Long> statuses, Pageable pageable);
 }
