@@ -16,6 +16,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -60,9 +61,13 @@ public class LegalController {
     }
 
     @PostMapping("/updateInspectionStatus")
-    public ResponseDTO updateInspectionStatus(@RequestBody UpdateInspectionStatusRequest dto) {
+    public ResponseDTO updateInspectionStatus(@RequestParam("inspectionId") Long inspectionId,
+                                              @RequestParam("statusId") Long statusId,
+                                              @RequestParam(value = "noteAdded",required = false) String noteAdded,
+                                              @RequestParam(value = "files",required = false) MultipartFile[] files
+    ) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        return this.legalService.updateInspectionStatus(dto.inspectionId(), dto.statusId(), dto.note(), userDetails.getUsername());
+        return this.legalService.updateInspectionStatus(inspectionId,statusId, noteAdded,files, userDetails.getUsername());
     }
 }

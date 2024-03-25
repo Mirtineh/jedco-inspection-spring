@@ -1,7 +1,6 @@
 package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.Util.DateConverter;
-import com.jedco.jedcoinspectionspring.Util.Day;
 import com.jedco.jedcoinspectionspring.mappers.InspectionMapper;
 import com.jedco.jedcoinspectionspring.models.*;
 import com.jedco.jedcoinspectionspring.repositories.InspectionRepository;
@@ -16,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -31,6 +31,7 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
     private final SalesAssignmentRepository salesAssignmentRepository;
     private final AsyncService asyncService;
     private final SalesAndLegalService salesAndLegalService;
+    private final TaskHistoryService taskHistoryService;
     private final PagingService pagingService;
     private final ExcelGenerator excelGenerator;
 
@@ -49,7 +50,7 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
     }
 
     @Override
-    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String note, String username) {
+    public ResponseDTO updateInspectionStatus(Long inspectionId, Long statusId, String note, MultipartFile[] files, String username) {
         Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
         Optional<Status> optionalStatus = statusRepository.findById(statusId);
 
@@ -84,16 +85,9 @@ public class InspectionLegalServiceImpl implements InspectionLegalService {
         inspectionRepository.save(inspection);
 
 
-        TaskHistory taskHistory = new TaskHistory();
-        taskHistory.setActionDate(new Date());
-        taskHistory.setInspection(inspection);
-        taskHistory.setActionBy(user);
-        taskHistory.setAdditionalNote(note);
-        taskHistory.setActionType(status.getName().replace("-"," ").toUpperCase());
-        taskHistory.setHistoryDetails(user.getFirstName()+" "+user.getLastName()+" Updated Inspection status to "+status.getName().replace("-"," "));
-
-        this.asyncService.postHistory(taskHistory);
-
+        String historyDetail=user.getFirstName()+" "+user.getLastName()+" Updated Inspection status to "+status.getName().replace("-"," ");
+        String actionType=status.getName().replace("-"," ").toUpperCase();
+        taskHistoryService.insertTaskHistory(inspection,note,user,actionType,historyDetail,"Legal_files",files);
 
         return new ResponseDTO(true, "Inspection Status Updated Successfully!");
 
