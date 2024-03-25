@@ -90,6 +90,9 @@ public class Inspection extends BaseEntity{
     @Column(name="customer_status", length=250)
     private String customerStatus;
 
+    @Column(name="legal_case_no",length = 20)
+    private String legalCaseNo;
+
     @OneToMany(fetch=FetchType.LAZY, mappedBy="inspection")
     private Set<CheckListResult> installationChecklists = new HashSet<CheckListResult>(0);
 
