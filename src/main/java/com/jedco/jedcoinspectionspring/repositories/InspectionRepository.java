@@ -109,5 +109,5 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
 
     Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, Date date, Date date1, String meterNumber, String legalCaseNo, List<Long> statuses, Pageable pageable);
 
-    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, Date date, Date date1, String legalCaseNo, List<Long> statuses, Pageable pageable);
+    Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, java.util.Date date, java.util.Date date1, String legalCaseNo, java.util.List<java.lang.Long> statuses, Pageable pageable);
 }
