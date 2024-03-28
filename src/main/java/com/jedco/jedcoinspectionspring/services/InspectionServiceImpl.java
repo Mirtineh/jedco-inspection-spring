@@ -7,18 +7,13 @@ import com.jedco.jedcoinspectionspring.mappers.InspectionMapper;
 import com.jedco.jedcoinspectionspring.mappers.PriorityMapper;
 import com.jedco.jedcoinspectionspring.models.*;
 import com.jedco.jedcoinspectionspring.repositories.*;
-import com.jedco.jedcoinspectionspring.rest.requests.CheckListResultInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.CodeResultInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.*;
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,7 +21,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -384,6 +378,59 @@ public class InspectionServiceImpl implements InspectionService {
             return new ResponseDTO(false, "File Upload Failed!");
         }
     }
+
+    @Override
+    public ResponseDTO updateCustomerInfo(Long inspectionId, UpdateCustomerInfoRequest request, String username) {
+        Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
+        if (optionalInspection.isEmpty()) {
+            return new ResponseDTO(false, "Inspection not found!");
+        }
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()) {
+            return new ResponseDTO(false, "User not found!");
+        }
+        User user = optionalUser.get();
+        Inspection inspection = optionalInspection.get();
+
+        // Constructing additional note
+        StringBuilder additionalNoteBuilder = new StringBuilder();
+        additionalNoteBuilder.append("Updated fields:").append(System.lineSeparator());
+
+        if (!inspection.getCustomerName().equals(request.customerName())) {
+            additionalNoteBuilder.append("Customer Name: ").append(inspection.getCustomerName()).append(" -> ").append(request.customerName()).append(System.lineSeparator());
+            inspection.setCustomerName(request.customerName());
+        }
+
+        if (!inspection.getProblemTypes().equals(request.problemType())) {
+            additionalNoteBuilder.append("Problem Types: ").append(inspection.getProblemTypes()).append(" -> ").append(request.problemType()).append(System.lineSeparator());
+            inspection.setProblemTypes(request.problemType());
+        }
+
+        if (!inspection.getMeterNo().equals(request.meterNumber())) {
+            additionalNoteBuilder.append("Meter Number: ").append(inspection.getMeterNo()).append(" -> ").append(request.meterNumber()).append(System.lineSeparator());
+            inspection.setMeterNo(request.meterNumber());
+        }
+
+        if (!inspection.getPhoneNo().equals(request.phoneNumber())) {
+            additionalNoteBuilder.append("Phone Number: ").append(inspection.getPhoneNo()).append(" -> ").append(request.phoneNumber()).append(System.lineSeparator());
+            inspection.setPhoneNo(request.phoneNumber());
+        }
+
+        inspectionRepository.save(inspection);
+
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setInspection(inspection);
+        taskHistory.setActionBy(user);
+        taskHistory.setActionDate(new Date());
+        taskHistory.setActionType("CUSTOMER INFO EDITED");
+        taskHistory.setHistoryDetails(user.getFirstName() + " " + user.getLastName() + " Edited Customer Info");
+        taskHistory.setAdditionalNote(additionalNoteBuilder.toString());
+        this.asyncService.postHistory(taskHistory);
+
+        return new ResponseDTO(true, "Customer Info Updated Successfully!");
+    }
+
+
     private boolean createFolderIfNotExists(String dirName) throws SecurityException {
         File theDir = new File(dirName);
         log.info(dirName);

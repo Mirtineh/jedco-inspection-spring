@@ -2,6 +2,7 @@ package com.jedco.jedcoinspectionspring.controllers;
 
 import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.UpdateCustomerInfoRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 import com.jedco.jedcoinspectionspring.services.InspectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -44,6 +45,14 @@ public class InspectionController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return this.inspectionService.insertInspection(insertDto, userDetails.getUsername());
+    }
+
+    @PutMapping("/updateCustomerInfo/{inspectionId}")
+    @PreAuthorize("hasAnyAuthority('UPDATE_CUSTOMER_INFO')")
+    public ResponseDTO updateCustomerInfo(@PathVariable Long inspectionId,@RequestBody UpdateCustomerInfoRequest request){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return this.inspectionService.updateCustomerInfo(inspectionId,request,userDetails.getUsername());
     }
 
     @GetMapping("/getInspectionSByDate")

@@ -2,6 +2,7 @@ package com.jedco.jedcoinspectionspring.services;
 
 import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.UpdateCustomerInfoRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 
 import java.util.List;
@@ -24,4 +25,5 @@ public interface InspectionService {
 
     ResponseDTO upload(FileUploadFormRequest form, String username);
 
+    ResponseDTO updateCustomerInfo(Long inspectionId, UpdateCustomerInfoRequest request, String username);
 }
