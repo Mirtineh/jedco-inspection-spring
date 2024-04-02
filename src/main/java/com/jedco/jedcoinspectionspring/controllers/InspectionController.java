@@ -2,6 +2,7 @@ package com.jedco.jedcoinspectionspring.controllers;
 
 import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
 import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.UpdateCheckList;
 import com.jedco.jedcoinspectionspring.rest.requests.UpdateCustomerInfoRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 import com.jedco.jedcoinspectionspring.services.InspectionService;
@@ -116,5 +117,12 @@ public class InspectionController {
         FileUploadFormRequest form = new FileUploadFormRequest(file, inspectionId, fileName);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return this.inspectionService.upload(form, userDetails.getUsername());
+    }
+
+    @PutMapping("/updateCheckList")
+    public ResponseDTO updateCheckList (@RequestBody List<UpdateCheckList> request){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return this.inspectionService.updateCheckList(request,userDetails.getUsername());
     }
 }
