@@ -430,6 +430,46 @@ public class InspectionServiceImpl implements InspectionService {
         return new ResponseDTO(true, "Customer Info Updated Successfully!");
     }
 
+    @Override
+    public ResponseDTO updateCheckList(List<UpdateCheckList> requestList, String username) {
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()) {
+            return new ResponseDTO(false, "User not found!");
+        }
+        User user = optionalUser.get();
+        // Constructing additional note
+        StringBuilder additionalNoteBuilder = new StringBuilder();
+        additionalNoteBuilder.append("Updated fields:").append(System.lineSeparator());
+        Inspection inspection=null;
+        for(var request: requestList){
+            Optional<CheckListResult> optionalCheckList= checkListResultRepository.findById(request.id());
+            if(optionalCheckList.isEmpty()){
+                return new ResponseDTO(false,"CheckList not found!");
+            }
+            var checkList = optionalCheckList.get();
+            if(!checkList.isChecklistStatus() == request.status()){
+                additionalNoteBuilder.append(checkList.getCheckList().getCheckList()).append(" Status: ").append(checkList.isChecklistStatus()).append(" -> ").append(request.status()).append(System.lineSeparator());
+                checkList.setChecklistStatus(request.status());
+            }
+            if(!checkList.getRemark().equals(request.remark())){
+                additionalNoteBuilder.append(checkList.getCheckList().getCheckList()).append(" Remark: ").append(checkList.getRemark()).append(" -> ").append(request.remark()).append(System.lineSeparator());
+                checkList.setRemark(request.remark());
+            }
+            inspection=checkList.getInspection();
+            checkList.setUpdatedOn(new Date());
+            checkListResultRepository.save(checkList);
+        }
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setInspection(inspection);
+        taskHistory.setActionBy(user);
+        taskHistory.setActionDate(new Date());
+        taskHistory.setActionType("Meter Installation Checklist Edited");
+        taskHistory.setHistoryDetails(user.getFirstName() + " " + user.getLastName() + " Meter Installation Checklist");
+        taskHistory.setAdditionalNote(additionalNoteBuilder.toString());
+        this.asyncService.postHistory(taskHistory);
+        return new ResponseDTO(true,"Checklist updated Successfully!");
+    }
+
 
     private boolean createFolderIfNotExists(String dirName) throws SecurityException {
         File theDir = new File(dirName);
