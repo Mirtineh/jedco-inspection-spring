@@ -1,9 +1,6 @@
 package com.jedco.jedcoinspectionspring.controllers;
 
-import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.UpdateCheckList;
-import com.jedco.jedcoinspectionspring.rest.requests.UpdateCustomerInfoRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.*;
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 import com.jedco.jedcoinspectionspring.services.InspectionService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -120,9 +117,18 @@ public class InspectionController {
     }
 
     @PutMapping("/updateCheckList")
+    @PreAuthorize("hasAnyAuthority('REGISTER_INSPECTION')")
     public ResponseDTO updateCheckList (@RequestBody List<UpdateCheckList> request){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return this.inspectionService.updateCheckList(request,userDetails.getUsername());
+    }
+
+    @PutMapping("/updateCodeResult/{inspectionId}")
+    @PreAuthorize("hasAnyAuthority('REGISTER_INSPECTION')")
+    public ResponseDTO updateCodeResult(@PathVariable Long inspectionId, @RequestBody List<CodeResultUpdateRequest> codeResults ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return this.inspectionService.updateCodeResult(inspectionId,codeResults,userDetails.getUsername());
     }
 }
