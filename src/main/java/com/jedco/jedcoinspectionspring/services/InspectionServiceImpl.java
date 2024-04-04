@@ -484,7 +484,7 @@ public class InspectionServiceImpl implements InspectionService {
         User user = optionalUser.get();
         Inspection inspection = optionalInspection.get();
         Set<CodeResult> codeResultList= inspection.getCodeResults();
-        List<Long> requestCodeResultIdList= codeResults.stream().map(CodeResultUpdateRequest::CodeResultId).toList();
+        List<Long> requestCodeResultIdList= codeResults.stream().map(CodeResultUpdateRequest::id).toList();
         // Constructing additional note
         StringBuilder additionalNoteBuilder = new StringBuilder();
         additionalNoteBuilder.append("Updated fields:").append(System.lineSeparator());
@@ -506,8 +506,8 @@ public class InspectionServiceImpl implements InspectionService {
             }
             var inspectionCode= optionalInspectionCode.get();
             CodeResult codeResult;
-            if(request.CodeResultId() != null){
-                Optional<CodeResult> optionalCodeResult= codeResultRepository.findById(request.CodeResultId());
+            if(request.id() != null){
+                Optional<CodeResult> optionalCodeResult= codeResultRepository.findById(request.id());
                 if(optionalCodeResult.isEmpty()){
                     return new ResponseDTO(false,"Code result not found!");
                 }
