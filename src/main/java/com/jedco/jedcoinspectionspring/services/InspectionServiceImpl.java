@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -468,6 +469,85 @@ public class InspectionServiceImpl implements InspectionService {
         taskHistory.setAdditionalNote(additionalNoteBuilder.toString());
         this.asyncService.postHistory(taskHistory);
         return new ResponseDTO(true,"Checklist updated Successfully!");
+    }
+
+    @Override
+    public ResponseDTO updateCodeResult(Long inspectionId, List<CodeResultUpdateRequest> codeResults, String username) {
+        Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
+        if (optionalInspection.isEmpty()) {
+            return new ResponseDTO(false, "Inspection not found!");
+        }
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()) {
+            return new ResponseDTO(false, "User not found!");
+        }
+        User user = optionalUser.get();
+        Inspection inspection = optionalInspection.get();
+        Set<CodeResult> codeResultList= inspection.getCodeResults();
+        List<Long> requestCodeResultIdList= codeResults.stream().map(CodeResultUpdateRequest::CodeResultId).toList();
+        // Constructing additional note
+        StringBuilder additionalNoteBuilder = new StringBuilder();
+        additionalNoteBuilder.append("Updated fields:").append(System.lineSeparator());
+        for(var codeResult:codeResultList){
+            if(!requestCodeResultIdList.contains(codeResult.getId())){
+                codeResultRepository.delete(codeResult);
+                additionalNoteBuilder.append("Deleted Code Result: ")
+                        .append(codeResult.getInspectionCode().getCode())
+                        .append(System.lineSeparator());
+            }
+        }
+        for(var request: codeResults){
+            if(request.inspectionCodeId()==null){
+                return new ResponseDTO(false,"Invalid Inspection Code");
+            }
+            Optional<InspectionCode> optionalInspectionCode= inspectionCodeRepository.findById(request.inspectionCodeId());
+            if(optionalInspectionCode.isEmpty()){
+                return new ResponseDTO(false,"Inspection code not found!");
+            }
+            var inspectionCode= optionalInspectionCode.get();
+            CodeResult codeResult;
+            if(request.CodeResultId() != null){
+                Optional<CodeResult> optionalCodeResult= codeResultRepository.findById(request.CodeResultId());
+                if(optionalCodeResult.isEmpty()){
+                    return new ResponseDTO(false,"Code result not found!");
+                }
+                codeResult=optionalCodeResult.get();
+                if(!codeResult.getResult().equals(request.result())){
+                    additionalNoteBuilder.append("Code Result ")
+                            .append(codeResult.getInspectionCode().getCode()).append(" :")
+                            .append(codeResult.getResult())
+                            .append(" -> ")
+                            .append(request.result())
+                            .append(System.lineSeparator());
+                    codeResult.setResult(request.result());
+                }
+
+                codeResult.setInspectionCode(inspectionCode);
+                codeResult.setUpdatedOn(new Date());
+            }
+            else{
+                codeResult= new CodeResult();
+                codeResult.setInspection(inspection);
+                codeResult.setInspectionCode(inspectionCode);
+                codeResult.setResult(request.result());
+                codeResult.setUser(user);
+                codeResult.setRegisteredOn(new Date());
+                additionalNoteBuilder.append("Add Code Result ")
+                        .append(inspectionCode.getCode()).append(" :")
+                        .append(codeResult.getResult())
+                        .append(System.lineSeparator());
+            }
+            codeResultRepository.save(codeResult);
+        }
+        TaskHistory taskHistory = new TaskHistory();
+        taskHistory.setInspection(inspection);
+        taskHistory.setActionBy(user);
+        taskHistory.setActionDate(new Date());
+        taskHistory.setActionType("Code List Updated");
+        taskHistory.setHistoryDetails(user.getFirstName() + " " + user.getLastName() + " Updated Code List");
+        taskHistory.setAdditionalNote(additionalNoteBuilder.toString());
+        this.asyncService.postHistory(taskHistory);
+        return new ResponseDTO(true,"Code Result updated Successfully");
     }
 
 

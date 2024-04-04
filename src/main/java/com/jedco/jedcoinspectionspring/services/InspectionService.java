@@ -1,9 +1,6 @@
 package com.jedco.jedcoinspectionspring.services;
 
-import com.jedco.jedcoinspectionspring.rest.requests.FileUploadFormRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.InspectionInsertRequest;
-import com.jedco.jedcoinspectionspring.rest.requests.UpdateCheckList;
-import com.jedco.jedcoinspectionspring.rest.requests.UpdateCustomerInfoRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.*;
 import com.jedco.jedcoinspectionspring.rest.responses.*;
 
 import java.util.List;
@@ -29,4 +26,6 @@ public interface InspectionService {
     ResponseDTO updateCustomerInfo(Long inspectionId, UpdateCustomerInfoRequest request, String username);
 
     ResponseDTO updateCheckList(List<UpdateCheckList> request, String username);
+
+    ResponseDTO updateCodeResult(Long inspectionId, List<CodeResultUpdateRequest> codeResults, String username);
 }
