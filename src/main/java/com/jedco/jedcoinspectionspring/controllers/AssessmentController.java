@@ -1,6 +1,7 @@
 package com.jedco.jedcoinspectionspring.controllers;
 
 import com.jedco.jedcoinspectionspring.rest.requests.LoadAssessmentInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.LoadAssessmentUpdateRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.EquipmentResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.LoadAssessmentResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.ResponseDTO;
@@ -8,6 +9,7 @@ import com.jedco.jedcoinspectionspring.services.AssessmentService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -39,6 +41,14 @@ public class AssessmentController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return assessmentService.insertAssessment(insertDto, userDetails.getUsername());
+    }
+
+    @PutMapping("/updateAssessment/{inspectionId}")
+    //TODO check this @PreAuthorize("hasAnyAuthority('REGISTER_INSPECTION')")
+    public ResponseDTO updateAssessment(@PathVariable Long inspectionId, @RequestBody LoadAssessmentUpdateRequest request){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return assessmentService.updateAssessment(inspectionId,request,userDetails.getUsername());
     }
 
 
