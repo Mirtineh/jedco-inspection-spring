@@ -490,10 +490,10 @@ public class InspectionServiceImpl implements InspectionService {
         additionalNoteBuilder.append("Updated fields:").append(System.lineSeparator());
         for(var codeResult:codeResultList){
             if(!requestCodeResultIdList.contains(codeResult.getId())){
-                codeResultRepository.delete(codeResult);
                 additionalNoteBuilder.append("Deleted Code Result: ")
                         .append(codeResult.getInspectionCode().getCode())
                         .append(System.lineSeparator());
+                codeResultRepository.delete(codeResult);
             }
         }
         for(var request: codeResults){
