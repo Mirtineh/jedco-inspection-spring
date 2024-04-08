@@ -29,7 +29,7 @@ public record InspectionSalesResponse(
         Date sentToSalesOn,
         List<CheckListResultResponse> checkListResultList,
         List<CodeResultResponse> codeResultList,
-        String filePath,
+        List<String> filePath,
         boolean assesmentSubmitted,
         String customerStatus,
         String legalCaseNo
