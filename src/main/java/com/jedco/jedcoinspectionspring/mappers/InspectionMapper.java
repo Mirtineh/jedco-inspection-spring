@@ -10,7 +10,9 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.Named;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
@@ -38,11 +40,11 @@ public interface InspectionMapper {
     }
 
     @Named("mapFilePath")
-    default String mapFilePath(Set<InspectionFile> inspectionFiles){
+    default List<String> mapFilePath(Set<InspectionFile> inspectionFiles){
         if(inspectionFiles==null || inspectionFiles.isEmpty()){
-            return "";
+            return new ArrayList<>();
         }
-        return inspectionFiles.iterator().next().getFileName();
+        return inspectionFiles.stream().map(InspectionFile::getFileName).toList();
     }
 
     @Named("mapAssessments")

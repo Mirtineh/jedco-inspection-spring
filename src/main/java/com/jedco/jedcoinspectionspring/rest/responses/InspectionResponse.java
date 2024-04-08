@@ -33,7 +33,7 @@ public record InspectionResponse(
         String remark,
         List<CheckListResultResponse> checkListResultList,
         List<CodeResultResponse> codeResultList,
-        String filePath,
+        List<String> filePath,
         boolean assesmentSubmitted,
         String customerStatus
 ) {
