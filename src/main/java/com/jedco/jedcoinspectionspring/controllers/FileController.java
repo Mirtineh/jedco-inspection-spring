@@ -29,6 +29,15 @@ public class FileController {
     public ResponseEntity<Resource> serveFile(@PathVariable String folder,
                                               @PathVariable String filename) {
         String relativeUrl = String.format("%s/%s/%s", "inspectionFiles", folder, filename);
+        return getResourceResponseEntity(relativeUrl);
+    }
+    @GetMapping("/{filename:.+}")
+    public ResponseEntity<Resource> serveFile(@PathVariable String filename) {
+        String relativeUrl = String.format("%s/%s", "inspectionFiles", filename);
+        return getResourceResponseEntity(relativeUrl);
+    }
+
+    private ResponseEntity<Resource> getResourceResponseEntity(String relativeUrl) {
         Resource file = fileStorageService.loadFileAsResource(relativeUrl);
 
         if (file != null) {
