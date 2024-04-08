@@ -334,7 +334,13 @@ public class InspectionServiceImpl implements InspectionService {
 
 //            String folder = System.getProperty("jboss.home.dir") + File.separator + "welcome-content";
             String folder = uploadDir;
-            String path = File.separator + "inspectionFiles" + File.separator + inspection.getMeterNo();
+            String path;
+            if(inspection.getMeterNo().isEmpty()){
+                path = File.separator + "inspectionFiles";
+            }
+            else {
+                path = File.separator + "inspectionFiles" + File.separator + inspection.getMeterNo();
+            }
             folder = folder + path;
             if (form.fileName() == null || form.fileName().isEmpty()) {
                 return new ResponseDTO(false, "File Name Can not be empty!");
