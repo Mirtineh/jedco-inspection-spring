@@ -150,7 +150,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                     return new ResponseDTO(false,"Customer Load not found!");
                 }
                 customerLoad=optionalCustomerLoad.get();
-                if(!customerLoad.getPowerRate().equals(custLoadRequest.powerRate())){
+                if((customerLoad.getPowerRate()==null && custLoadRequest.powerRate()!=null) || (!customerLoad.getPowerRate().equals(custLoadRequest.powerRate()))){
                     additionalNoteBuilder.append("Power Rate of Equipment ")
                             .append(customerLoad.getEquipment().getName())
                             .append(" :")
@@ -160,7 +160,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                             .append(System.lineSeparator());
                     customerLoad.setPowerRate(custLoadRequest.powerRate());
                 }
-                if(!customerLoad.getQuantity().equals(custLoadRequest.quantity())){
+                if((customerLoad.getQuantity()==null && custLoadRequest.quantity()!=null) || (!customerLoad.getQuantity().equals(custLoadRequest.quantity()))){
                     additionalNoteBuilder.append("Quantity of Equipment ")
                             .append(customerLoad.getEquipment().getName())
                             .append(" :")
@@ -170,7 +170,7 @@ public class AssessmentServiceImpl implements AssessmentService {
                             .append(System.lineSeparator());
                     customerLoad.setQuantity(custLoadRequest.quantity());
                 }
-                if(!customerLoad.getTotalKwh().equals(custLoadRequest.totalKwh())){
+                if((customerLoad.getTotalKwh()==null && custLoadRequest.totalKwh()!=null) || (!customerLoad.getTotalKwh().equals(custLoadRequest.totalKwh()))){
                     additionalNoteBuilder.append("Total Kwh of Equipment ")
                             .append(customerLoad.getEquipment().getName())
                             .append(" :")
