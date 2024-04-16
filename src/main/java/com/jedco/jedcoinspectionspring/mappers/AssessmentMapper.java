@@ -3,6 +3,8 @@ package com.jedco.jedcoinspectionspring.mappers;
 import com.jedco.jedcoinspectionspring.models.CustomerLoad;
 import com.jedco.jedcoinspectionspring.models.InspectionAssessment;
 import com.jedco.jedcoinspectionspring.models.User;
+import com.jedco.jedcoinspectionspring.rest.requests.CustomerLoadInsertRequest;
+import com.jedco.jedcoinspectionspring.rest.requests.CustomerLoadUpdateRequest;
 import com.jedco.jedcoinspectionspring.rest.responses.CustomerLoadResponse;
 import com.jedco.jedcoinspectionspring.rest.responses.LoadAssessmentResponse;
 import org.mapstruct.Mapper;
@@ -28,5 +30,6 @@ public interface AssessmentMapper {
     @Mapping(target = "equipment", source = "equipment.name")
     CustomerLoadResponse toCustomerLoadResponse(CustomerLoad customerLoad);
 
+    CustomerLoadInsertRequest toCustomerLoadInsertRequest(CustomerLoadUpdateRequest request);
 
 }

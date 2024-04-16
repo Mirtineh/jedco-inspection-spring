@@ -28,4 +28,6 @@ public interface InspectionService {
     ResponseDTO updateCheckList(List<UpdateCheckList> request, String username);
 
     ResponseDTO updateCodeResult(Long inspectionId, List<CodeResultUpdateRequest> codeResults, String username);
+
+    ResponseDTO updateRemark(Long inspectionId, UpdateRemarkRequest remark, String username);
 }
