@@ -25,6 +25,7 @@ public record InspectionSalesResponse(
         String registeredBy,
         String priorityLevel,
         String assignmentNote,
+        String remark,
         @JsonFormat(shape = JsonFormat.Shape.NUMBER)
         Date sentToSalesOn,
         List<CheckListResultResponse> checkListResultList,

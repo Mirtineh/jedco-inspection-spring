@@ -556,6 +556,39 @@ public class InspectionServiceImpl implements InspectionService {
         return new ResponseDTO(true,"Code Result updated Successfully");
     }
 
+    @Override
+    public ResponseDTO updateRemark(Long inspectionId, UpdateRemarkRequest request, String username) {
+        Optional<Inspection> optionalInspection= inspectionRepository.findById(inspectionId);
+        if (optionalInspection.isEmpty()) {
+            return new ResponseDTO(false, "Inspection not found!");
+        }
+        Optional<User> optionalUser = userRepository.findByUsername(username);
+        if (optionalUser.isEmpty()) {
+            return new ResponseDTO(false, "User not found!");
+        }
+        User user = optionalUser.get();
+        Inspection inspection = optionalInspection.get();
+        StringBuilder additionalNoteBuilder = new StringBuilder();
+        additionalNoteBuilder.append("Updated fields:").append(System.lineSeparator());
+        if(!inspection.getRemark().equals(request.remark())){
+            additionalNoteBuilder.append("Updated Remark: ")
+                    .append(inspection.getRemark())
+                    .append(" -> ")
+                    .append(request.remark());
+            inspection.setRemark(request.remark());
+            inspectionRepository.save(inspection);
+            TaskHistory taskHistory = new TaskHistory();
+            taskHistory.setInspection(inspection);
+            taskHistory.setActionBy(user);
+            taskHistory.setActionDate(new Date());
+            taskHistory.setActionType("Remark Updated");
+            taskHistory.setHistoryDetails(user.getFirstName() + " " + user.getLastName() + " Updated Code List");
+            taskHistory.setAdditionalNote(additionalNoteBuilder.toString());
+            this.asyncService.postHistory(taskHistory);
+        }
+        return new ResponseDTO(true,"Remark updated Successfully");
+    }
+
 
     private boolean createFolderIfNotExists(String dirName) throws SecurityException {
         File theDir = new File(dirName);

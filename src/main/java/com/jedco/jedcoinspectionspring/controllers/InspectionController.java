@@ -131,4 +131,13 @@ public class InspectionController {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         return this.inspectionService.updateCodeResult(inspectionId,codeResults,userDetails.getUsername());
     }
+
+    @PutMapping("/updateRemark/{inspectionId}")
+    @PreAuthorize("hasAnyAuthority('REGISTER_INSPECTION')")
+    public ResponseDTO updateRemark(@PathVariable Long inspectionId, @RequestBody UpdateRemarkRequest remark ){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        return this.inspectionService.updateRemark(inspectionId,remark,userDetails.getUsername());
+    }
+
 }
