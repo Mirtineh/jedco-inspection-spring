@@ -88,7 +88,7 @@ public class AssessmentServiceImpl implements AssessmentService {
         taskHistory.setActionType("INSPECTION ASSESSMENT SUBMITTED");
 
         taskHistory.setHistoryDetails(registeredBy.getFirstName() + " " + registeredBy.getLastName() + " Submitted Inspection Assessment");
-
+        this.asyncService.postHistory(taskHistory);
         return new ResponseDTO(true, "Assessment Registered Successfully.");
 
 
@@ -103,6 +103,16 @@ public class AssessmentServiceImpl implements AssessmentService {
 
     @Override
     public ResponseDTO updateAssessment(Long inspectionId, LoadAssessmentUpdateRequest request, String username) {
+
+        if(request.id()==null){
+            List<CustomerLoadInsertRequest> loadInsertRequests= request
+                    .customerLoadUpdateRequestList()
+                    .stream().map(assessmentMapper::toCustomerLoadInsertRequest).toList();
+            LoadAssessmentInsertRequest insertRequest= new LoadAssessmentInsertRequest(request.customerType()
+                    ,request.presentedDocument()
+                    ,"Inspection",inspectionId,loadInsertRequests);
+            return insertAssessment(insertRequest,username);
+        }
         Optional<Inspection> optionalInspection = inspectionRepository.findById(inspectionId);
         if (optionalInspection.isEmpty()) {
             return new ResponseDTO(false, "Inspection not found!");
