@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -164,9 +165,9 @@ public class InspectionServiceImpl implements InspectionService {
     }
 
     @Override
-    public AdminInspectionResponse adminInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber,List<Long> statuses, int page, int limit,String sort) {
+    public AdminInspectionResponse adminInspectionsListByDate(String startDateString, String endDateString,String customerName,String meterNumber,List<Long> statuses,String problemType, int page, int limit,String sort) {
         Pageable pageable = pagingService.createPageable(page, limit, sort);
-        Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,problemType,pageable);
         List<InspectionResponse> inspectionResponses = inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionResponse)
                 .toList();
@@ -174,78 +175,42 @@ public class InspectionServiceImpl implements InspectionService {
         return new AdminInspectionResponse(inspectionResponses, totalRows);
 
     }
-    private Page<Inspection> getAllInspectionsData(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, Pageable pageable) {
+
+    private Page<Inspection> getAllInspectionsData(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String problemType, Pageable pageable) {
         Day day = dateConverter.convertBetweenDays(startDateString, endDateString);
-        Long deletedStatus=3L;
+        Long deletedStatus = 3L;
         Page<Inspection> inspectionPage;
-        if(day!=null){
-            if (statuses == null || statuses.isEmpty()) {
-                if (customerName != null && meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
-                            deletedStatus, day.startTime(), day.endTime(), customerName, meterNumber, pageable);
-                } else if (customerName != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCase(
-                            deletedStatus, day.startTime(), day.endTime(), customerName, pageable);
-                } else if (meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCase(
-                            deletedStatus, day.startTime(), day.endTime(), meterNumber, pageable);
-                } else {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetween(deletedStatus, day.startTime(), day.endTime(), pageable);
-                }
-            }
-            else {
-                if (customerName != null && meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(
-                            deletedStatus, day.startTime(), day.endTime(), customerName, meterNumber, statuses, pageable);
-                } else if (customerName != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndCustomerNameContainingIgnoreCaseAndStatusIdIn(
-                            deletedStatus, day.startTime(), day.endTime(), customerName, statuses, pageable);
-                } else if (meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndMeterNoContainingIgnoreCaseAndStatusIdIn(
-                            deletedStatus, day.startTime(), day.endTime(), meterNumber, statuses, pageable);
-                } else {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndRegisteredOnBetweenAndStatusIdIn(
-                            deletedStatus, day.startTime(), day.endTime(), statuses, pageable);
-                }
-            }
+
+        Specification<Inspection> spec = Specification.where((root, query, criteriaBuilder) -> criteriaBuilder.notEqual(root.get("status").get("id"), deletedStatus));
+
+        if (day != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.between(root.get("registeredOn"), day.startTime(), day.endTime()));
         }
-        else {
-            if (statuses == null || statuses.isEmpty()) {
-                if (customerName != null && meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCase(
-                            deletedStatus, customerName, meterNumber, pageable);
-                } else if (customerName != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCase(
-                            deletedStatus, customerName, pageable);
-                } else if (meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndMeterNoContainingIgnoreCase(
-                            deletedStatus, meterNumber, pageable);
-                } else {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNot(deletedStatus, pageable);
-                }
-            }
-            else {
-                if (customerName != null && meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndMeterNoContainingIgnoreCaseAndStatusIdIn(
-                            deletedStatus, customerName, meterNumber, statuses, pageable);
-                } else if (customerName != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndCustomerNameContainingIgnoreCaseAndStatusIdIn(
-                            deletedStatus, customerName, statuses, pageable);
-                } else if (meterNumber != null) {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndMeterNoContainingIgnoreCaseAndStatusIdIn(
-                            deletedStatus, meterNumber, statuses, pageable);
-                } else {
-                    inspectionPage = inspectionRepository.findAllByStatusIdNotAndStatusIdIn(
-                            deletedStatus, statuses, pageable);
-                }
-            }
+
+        if (statuses != null && !statuses.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> root.get("status").get("id").in(statuses));
         }
+
+        if (customerName != null && !customerName.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("customerName")), "%" + customerName.toLowerCase() + "%"));
+        }
+
+        if (meterNumber != null && !meterNumber.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("meterNo")), "%" + meterNumber.toLowerCase() + "%"));
+        }
+
+        if (problemType != null && !problemType.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.like(criteriaBuilder.lower(root.get("problemTypes")),"%"+problemType.toLowerCase()+"%"));
+        }
+
+        inspectionPage = inspectionRepository.findAll(spec, pageable);
+
         return inspectionPage;
     }
     // Method to export data to Excel
-    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort) {
+    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses,String problemType, String sort) {
         Pageable pageable = pagingService.createPageable(sort);
-        Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,pageable);
+        Page<Inspection> inspectionPage=getAllInspectionsData(startDateString,endDateString,customerName,meterNumber,statuses,problemType,pageable);
         List<InspectionResponse> inspections = inspectionPage.getContent().stream()
                 .map(inspectionMapper::toInspectionResponse)
                 .toList();

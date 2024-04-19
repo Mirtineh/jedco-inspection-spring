@@ -12,8 +12,8 @@ public interface InspectionService {
 
     List<InspectionResponse> inspectionsListByDate(String startDate, String endDate, String username);
 
-    AdminInspectionResponse adminInspectionsListByDate(String startDate, String endDate,String customerName,String meterNumber,List<Long> statuses, int page, int limit,String sort);
-    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses, String sort);
+    AdminInspectionResponse adminInspectionsListByDate(String startDate, String endDate,String customerName,String meterNumber,List<Long> statuses,String problemType, int page, int limit,String sort);
+    public byte[] exportInspectionsToExcel(String startDateString, String endDateString, String customerName, String meterNumber, List<Long> statuses,String problemType, String sort);
 
     List<InspectionResponse> getInspectionsByDateAndStatus(String startDate, String endDate, Long statusId);
 
