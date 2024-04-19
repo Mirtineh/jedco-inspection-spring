@@ -39,9 +39,10 @@ public class SalesController {
             @RequestParam(value = "metterNumber", required = false) String meterNumber,
             @RequestParam(value = "legalCaseNo", required = false) String legalCaseNo,
             @RequestParam(value = "statuses", required = false) List<Long> statuses,
+            @RequestParam(value = "problemType", required = false) String problemType,
             @RequestParam(value = "sort", required = false) String sort
     ) {
-        return inspectionSalesService.salesInspectionsListByDate(startDate, endDate, customerName,meterNumber,legalCaseNo,statuses, page,limit,sort);
+        return inspectionSalesService.salesInspectionsListByDate(startDate, endDate, customerName,meterNumber,legalCaseNo,statuses,problemType, page,limit,sort);
     }
     @GetMapping("/exportSalesToExcel")
     public ResponseEntity<byte[]> exportInspectionsToExcel(
@@ -51,9 +52,10 @@ public class SalesController {
             @RequestParam(value = "meterNumber", required = false) String meterNumber,
             @RequestParam(value = "legalCaseNo", required = false) String legalCaseNo,
             @RequestParam(value = "statuses", required = false) List<Long> statuses,
+            @RequestParam(value = "problemType", required = false) String problemType,
             @RequestParam(value = "sort", required = false) String sort
     ) {
-        byte[] excelData = inspectionSalesService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber,legalCaseNo, statuses, sort);
+        byte[] excelData = inspectionSalesService.exportInspectionsToExcel(startDate, endDate, customerName, meterNumber,legalCaseNo, statuses,problemType, sort);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"));
         headers.setContentDispositionFormData("attachment", "inspections.xlsx");
