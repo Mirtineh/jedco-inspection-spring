@@ -159,7 +159,9 @@ public class InspectionServiceImpl implements InspectionService {
         Day day = dateConverter.convertBetweenDays(startDate, endDate);
         if (day == null) return null;
         Long deletedStatus=3L;
-        List<Inspection> inspections= inspectionRepository.findAllByStatusId_NotAndRegisteredOnBetween(deletedStatus,day.startTime(),day.endTime());
+        User registeredBy = userRepository.findByUsername(username).get();
+//        List<Inspection> inspections= inspectionRepository.findAllByStatusId_NotAndRegisteredOnBetween(deletedStatus,day.startTime(),day.endTime());
+        List<Inspection> inspections= inspectionRepository.findAllByUserAndStatusId_NotAndRegisteredOnBetween(registeredBy,deletedStatus,day.startTime(),day.endTime());
         return inspections.stream().map(inspectionMapper::toInspectionResponse).toList();
 
     }
