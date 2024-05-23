@@ -1,6 +1,7 @@
 package com.jedco.jedcoinspectionspring.repositories;
 
 import com.jedco.jedcoinspectionspring.models.Inspection;
+import com.jedco.jedcoinspectionspring.models.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -113,4 +114,6 @@ public interface InspectionRepository extends JpaRepository<Inspection,Long> {
     Page<Inspection> findAllByStatusIdIsGreaterThanEqualAndRegisteredOnBetweenAndLegalCaseNoContainingIgnoreCaseAndStatusIdIn(Long statusId, java.util.Date date, java.util.Date date1, String legalCaseNo, java.util.List<java.lang.Long> statuses, Pageable pageable);
 
     Page<Inspection> findAll(Specification<Inspection> spec, Pageable pageable);
+
+    List<Inspection> findAllByUserAndStatusId_NotAndRegisteredOnBetween(User registeredBy, Long deletedStatus, Date date, Date date1);
 }
